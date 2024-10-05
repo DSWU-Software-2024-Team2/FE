@@ -167,29 +167,6 @@ export default function SearchScreen() {
             </TouchableOpacity>
           </View>
         ))}
-
-        {/*{Array.from({ length: 10 }, (_, index) => (
-          <Text
-            key={index}
-            style={index < 3 ? styles.textHighlight : styles.textDefault}
-          >
-            {index + 1}
-          </Text>
-        ))}
-      </View>
-      <View style={styles.community}>
-        <Text style={styles.text}>강의평가</Text>
-        <Text style={styles.text}>최강화학</Text>
-        <Text style={styles.text}>전공 변경</Text>
-        <Text style={styles.text}>자퇴</Text>
-        <Text style={styles.text}>집 가고 싶다</Text>
-        <Pressable onPress={() => {}}>
-          <Text style={styles.text}>삼성전자</Text>
-        </Pressable>
-        <Text style={styles.text}>종강</Text>
-        <Text style={styles.text}>추석</Text>
-        <Text style={styles.text}>교수랑 친해지면</Text>
-        <Text style={styles.text}>중간고사 기간</Text>*/}
       </View>
     </ScrollView>
   );

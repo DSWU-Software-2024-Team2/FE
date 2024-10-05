@@ -40,7 +40,7 @@ export default function SearchScreen() {
       return;
     }
     // 검색 API 호출 및 결과 화면으로 이동.
-    navigation.navigate("Search", {
+    navigation.navigate("SearchResult", {
       mainCategory: selectedCategory,
       subCategory: "전체", // 메인 검색 화면에서의 검색하면 세부 카테고리 디폴트가 '전체'. 없어도 될듯???
       keyword: searchQuery,
@@ -225,12 +225,6 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginVertical: 16,
   },
-  separator: {
-    height: 20, // 구분선의 높이
-    width: 1, // 구분선의 너비
-    backgroundColor: "#d9d9d9", // 구분선 색상
-    alignSelf: "center", // 중앙 정렬
-  },
   categorytext: {
     textAlign: "center",
     color: "#a5a5a5",
@@ -240,28 +234,6 @@ const styles = StyleSheet.create({
     letterSpacing: -0.3,
     fontSize: 15,
     flex: 1, // This allows equal space distribution
-  },
-  parent: {
-    flex: 1,
-    flexDirection: "column", // Arrange items vertically
-    justifyContent: "center", // Center the items vertically
-    alignItems: "center", // Center the items horizontally
-    width: "100%",
-    height: 54,
-  },
-  categoryContainer: {
-    flexDirection: "row", // Arrange text items in a row
-    justifyContent: "space-between",
-    alignItems: "center",
-    width: "100%", // Full width
-    paddingHorizontal: 25,
-  },
-  lineView: {
-    height: 1,
-    width: "100%",
-    borderColor: "rgba(122, 122, 122, 0.18)",
-    borderWidth: 0.9,
-    marginVertical: 10, // Space between text and line
   },
   rankings: {
     flexDirection: "column",

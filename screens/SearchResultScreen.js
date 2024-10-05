@@ -14,7 +14,9 @@ import {
 } from "react-native";
 import goBackIcon from "../assets/go_back.png";
 import searchIcon from "../assets/search.png";
+import cautionIcon from "../assets/caution.png";
 import { useNavigation, useRoute } from "@react-navigation/native";
+import { FlatList } from "react-native-gesture-handler";
 
 export default function SearchResultScreen() {
   const route = useRoute();
@@ -31,6 +33,64 @@ export default function SearchResultScreen() {
       return;
     }
   };
+
+  // api 연결 전까지 사용
+  const searchResults = [
+    {
+      post_id: 1,
+      title: "검색 결과 예시1",
+      likes_count: 0,
+      post_mileage: 0,
+      sub_category_name: "카테고리1",
+    },
+    {
+      post_id: 2,
+      title: "검색 결과 예시2",
+      likes_count: 10,
+      post_mileage: 200,
+      sub_category_name: "카테고리2",
+    },
+    {
+      post_id: 3,
+      title: "검색 결과 예시3",
+      likes_count: 5,
+      post_mileage: 100,
+      sub_category_name: "카테고리3",
+    },
+    {
+      post_id: 4,
+      title: "검색 결과 예시4",
+      likes_count: 20,
+      post_mileage: 250,
+      sub_category_name: "카테고리1",
+    },
+    {
+      post_id: 5,
+      title: "검색 결과 예시5",
+      likes_count: 50,
+      post_mileage: 300,
+      sub_category_name: "카테고리5",
+    },
+  ];
+
+  const renderItem = ({ item }) => (
+    <TouchableOpacity
+      onPress={() => {
+        // navigation.navigate("PostDeatil", { postId: item.post_id })
+      }}
+    >
+      <View style={styles.itemContainer}>
+        <View style={styles.itemHeader}>
+          <Text style={styles.itemCategory}>#{item.sub_category_name}</Text>
+          <Text style={styles.itemViews}>💰 {item.post_mileage}</Text>
+        </View>
+        <Text style={styles.itemTitle}>{item.title}</Text>
+        <View style={styles.itemFooter}>
+          <Text style={styles.itemComments}>❤️ {item.likes_count}</Text>
+        </View>
+      </View>
+    </TouchableOpacity>
+  );
 
   // api 연결 후 아래 코드 사용
   /*
@@ -68,7 +128,7 @@ export default function SearchResultScreen() {
   */
 
   return (
-    <ScrollView style={styles.searchMain}>
+    <View style={styles.searchMain}>
       <TouchableOpacity
         onPress={() => {
           navigation.goBack();
@@ -193,10 +253,23 @@ export default function SearchResultScreen() {
         </View>
       )}
 
-      <View>
-        {/* 검색 결과 게시글들 띄우기. 만약 검색 결과가 없으면 없다고 띄우기 */}
-      </View>
-    </ScrollView>
+      {/* 검색 결과 게시글들 띄우기. 만약 검색 결과가 없으면 없다고 띄우기 */}
+      {searchResults.length === 0 ? (
+        <View style={styles.noResultConainer}>
+          <Image style={styles.cautionIcon} source={cautionIcon} />
+          <Text style={styles.noResultText}>
+            조회할 수 있는{"\n"}게시글이 없습니다.
+          </Text>
+        </View>
+      ) : (
+        <FlatList
+          data={searchResults}
+          renderItem={renderItem}
+          keyExtractor={(item) => item.post_id.toString()}
+          showsVerticalScrollIndicator={false}
+        />
+      )}
+    </View>
   );
 }
 
@@ -260,12 +333,6 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginVertical: 16,
   },
-  separator: {
-    height: 20, // 구분선의 높이
-    width: 1, // 구분선의 너비
-    backgroundColor: "#d9d9d9", // 구분선 색상
-    alignSelf: "center", // 중앙 정렬
-  },
   categorytext: {
     textAlign: "center",
     color: "#a5a5a5",
@@ -274,85 +341,11 @@ const styles = StyleSheet.create({
     //lineHeight: 23,
     letterSpacing: -0.3,
     fontSize: 15,
-    flex: 1, // This allows equal space distribution
-  },
-  parent: {
-    flex: 1,
-    flexDirection: "column", // Arrange items vertically
-    justifyContent: "center", // Center the items vertically
-    alignItems: "center", // Center the items horizontally
-    width: "100%",
-    height: 54,
-  },
-  categoryContainer: {
-    flexDirection: "row", // Arrange text items in a row
-    justifyContent: "space-between",
-    alignItems: "center",
-    width: "100%", // Full width
-    paddingHorizontal: 25,
-  },
-  categorycategoryButton: {
-    height: 23,
-  },
-  lineView: {
-    height: 1,
-    width: "100%",
-    borderColor: "rgba(122, 122, 122, 0.18)",
-    borderWidth: 0.9,
-    marginVertical: 10, // Space between text and line
-  },
-  rankings: {
-    flexDirection: "column",
-    alignItems: "flex-start",
-    marginVertical: 20,
-    marginHorizontal: 15,
-  },
-  honeywebContainer: {
-    fontSize: 24,
-    letterSpacing: -0.6,
-    lineHeight: 36,
-    fontWeight: "700",
-    color: "#000",
-    marginBottom: 20,
-  },
-  honeyweb: {
-    color: "#ecae52",
-  },
-  rankContainer: {
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    gap: 20,
-    marginLeft: 5,
-    marginBottom: 13,
-  },
-  topRanks: {
-    fontSize: 20,
-    letterSpacing: -0.5,
-    lineHeight: 30,
-    fontWeight: "700",
-    color: "#ecae52",
-    textAlign: "left",
-  },
-  ranks: {
-    fontSize: 20,
-    letterSpacing: -0.5,
-    lineHeight: 30,
-    fontWeight: "700",
-    color: "#000",
-    textAlign: "left",
-  },
-  keyword: {
-    fontSize: 16,
-    letterSpacing: -0.4,
-    lineHeight: 24,
-    fontWeight: "700",
-    color: "#000",
-    textAlign: "left",
   },
   container: {
     borderWidth: 1,
     borderColor: "rgba(122, 122, 122, 0.18)",
+    marginBottom: 25,
   },
   row: {
     flexDirection: "row",
@@ -366,5 +359,62 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderRightWidth: 1,
     borderColor: "rgba(122, 122, 122, 0.18)",
+  },
+  noResultConainer: {
+    gap: 15,
+    marginTop: 50,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  cautionIcon: {
+    width: 50,
+    height: 50,
+  },
+  noResultText: {
+    fontSize: 23,
+    letterSpacing: -0.5,
+    lineHeight: 35,
+    fontWeight: "700",
+    textAlign: "center",
+  },
+  itemContainer: {
+    backgroundColor: "#FFFFFF",
+    marginHorizontal: 10,
+    marginBottom: 10,
+    padding: 15,
+    borderRadius: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.3,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  itemHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 5,
+  },
+  itemCategory: {
+    fontSize: 12,
+    color: "#007AFF",
+    fontWeight: "bold",
+  },
+  itemViews: {
+    fontSize: 12,
+    color: "#AAAAAA",
+  },
+  itemTitle: {
+    fontSize: 16,
+    fontWeight: "bold",
+    marginBottom: 5,
+  },
+  itemFooter: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  itemComments: {
+    fontSize: 12,
+    color: "#AAAAAA",
   },
 });

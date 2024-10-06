@@ -39,6 +39,12 @@ export default function SearchScreen() {
       Alert.alert("검색어를 입력해 주세요."); // 검색어가 없는 경우 경고 팝업 띄우기
       return;
     }
+
+    if (searchQuery.trim().length < 2) {
+      Alert.alert("검색어는 2글자 이상 입력해 주세요."); // 검색어가 2글자 미만인 경우 경고 팝업 띄우기
+      return;
+    }
+
     // 검색 API 호출 및 결과 화면으로 이동.
     navigation.navigate("SearchResult", {
       mainCategory: selectedCategory,

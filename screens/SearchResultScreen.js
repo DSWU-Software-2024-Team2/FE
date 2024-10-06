@@ -32,6 +32,11 @@ export default function SearchResultScreen() {
       Alert.alert("검색어를 입력해 주세요."); // 검색어가 없는 경우 경고
       return;
     }
+
+    if (searchQuery.trim().length < 2) {
+      Alert.alert("검색어는 2글자 이상 입력해 주세요."); // 검색어가 2글자 미만인 경우 경고 팝업 띄우기
+      return;
+    }
   };
 
   // api 연결 전까지 사용
@@ -160,7 +165,11 @@ export default function SearchResultScreen() {
             <TouchableOpacity
               style={styles.categoryButton}
               onPress={() => {
-                setSelectedCategory("전체");
+                if (searchQuery.length < 2) {
+                  Alert.alert("검색어는 2글자 이상 입력해 주세요.");
+                } else {
+                  setSelectedCategory("전체");
+                }
               }}
             >
               <Text
@@ -175,7 +184,11 @@ export default function SearchResultScreen() {
             <TouchableOpacity
               style={styles.categoryButton}
               onPress={() => {
-                setSelectedCategory("교내");
+                if (searchQuery.length < 2) {
+                  Alert.alert("검색어는 2글자 이상 입력해 주세요.");
+                } else {
+                  setSelectedCategory("교내");
+                }
               }}
             >
               <Text
@@ -190,7 +203,11 @@ export default function SearchResultScreen() {
             <TouchableOpacity
               style={styles.categoryButton}
               onPress={() => {
-                setSelectedCategory("서포터즈/동아리");
+                if (searchQuery.length < 2) {
+                  Alert.alert("검색어는 2글자 이상 입력해 주세요.");
+                } else {
+                  setSelectedCategory("서포터즈/동아리");
+                }
               }}
             >
               <Text
@@ -207,7 +224,11 @@ export default function SearchResultScreen() {
             <TouchableOpacity
               style={styles.categoryButton}
               onPress={() => {
-                setSelectedCategory("자격증");
+                if (searchQuery.length < 2) {
+                  Alert.alert("검색어는 2글자 이상 입력해 주세요.");
+                } else {
+                  setSelectedCategory("자격증");
+                }
               }}
             >
               <Text
@@ -222,7 +243,11 @@ export default function SearchResultScreen() {
             <TouchableOpacity
               style={styles.categoryButton}
               onPress={() => {
-                setSelectedCategory("공모전");
+                if (searchQuery.length < 2) {
+                  Alert.alert("검색어는 2글자 이상 입력해 주세요.");
+                } else {
+                  setSelectedCategory("공모전");
+                }
               }}
             >
               <Text
@@ -237,7 +262,11 @@ export default function SearchResultScreen() {
             <TouchableOpacity
               style={styles.categoryButton}
               onPress={() => {
-                setSelectedCategory("채용");
+                if (searchQuery.length < 2) {
+                  Alert.alert("검색어는 2글자 이상 입력해 주세요.");
+                } else {
+                  setSelectedCategory("채용");
+                }
               }}
             >
               <Text

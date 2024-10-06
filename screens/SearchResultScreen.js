@@ -165,7 +165,7 @@ export default function SearchResultScreen() {
             <TouchableOpacity
               style={styles.categoryButton}
               onPress={() => {
-                if (searchQuery.length < 2) {
+                if (searchQuery.trim().length < 2) {
                   Alert.alert("검색어는 2글자 이상 입력해 주세요.");
                 } else {
                   setSelectedCategory("전체");
@@ -184,7 +184,7 @@ export default function SearchResultScreen() {
             <TouchableOpacity
               style={styles.categoryButton}
               onPress={() => {
-                if (searchQuery.length < 2) {
+                if (searchQuery.trim().length < 2) {
                   Alert.alert("검색어는 2글자 이상 입력해 주세요.");
                 } else {
                   setSelectedCategory("교내");
@@ -203,7 +203,7 @@ export default function SearchResultScreen() {
             <TouchableOpacity
               style={styles.categoryButton}
               onPress={() => {
-                if (searchQuery.length < 2) {
+                if (searchQuery.trim().length < 2) {
                   Alert.alert("검색어는 2글자 이상 입력해 주세요.");
                 } else {
                   setSelectedCategory("서포터즈/동아리");
@@ -224,7 +224,7 @@ export default function SearchResultScreen() {
             <TouchableOpacity
               style={styles.categoryButton}
               onPress={() => {
-                if (searchQuery.length < 2) {
+                if (searchQuery.trim().length < 2) {
                   Alert.alert("검색어는 2글자 이상 입력해 주세요.");
                 } else {
                   setSelectedCategory("자격증");
@@ -243,7 +243,7 @@ export default function SearchResultScreen() {
             <TouchableOpacity
               style={styles.categoryButton}
               onPress={() => {
-                if (searchQuery.length < 2) {
+                if (searchQuery.trim().ength < 2) {
                   Alert.alert("검색어는 2글자 이상 입력해 주세요.");
                 } else {
                   setSelectedCategory("공모전");
@@ -262,7 +262,7 @@ export default function SearchResultScreen() {
             <TouchableOpacity
               style={styles.categoryButton}
               onPress={() => {
-                if (searchQuery.length < 2) {
+                if (searchQuery.trim().length < 2) {
                   Alert.alert("검색어는 2글자 이상 입력해 주세요.");
                 } else {
                   setSelectedCategory("채용");

@@ -95,7 +95,9 @@ export default function SearchScreen() {
               전체
             </Text>
           </TouchableOpacity>
-          <TouchableOpacity
+          {
+            // 정보 게시판 검색 불가
+            /*<TouchableOpacity
             style={styles.categoryButton}
             onPress={() => {
               setSelectedCategory("정보");
@@ -109,7 +111,8 @@ export default function SearchScreen() {
             >
               정보
             </Text>
-          </TouchableOpacity>
+          </TouchableOpacity>*/
+          }
           <TouchableOpacity
             style={styles.categoryButton}
             onPress={() => {

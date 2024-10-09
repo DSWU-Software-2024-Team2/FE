@@ -1,4 +1,6 @@
 ## 사용 라이브러리
+
+- expo-blur <<< NEW!!!
 - @react-navigation/native
 - @react-navigation/native-stack
 - @react-navigation/stack
@@ -8,6 +10,7 @@
 - expo-document-picker
 
 ## 폴더 구조
+
 <pre>
 <code>
 mini-project/

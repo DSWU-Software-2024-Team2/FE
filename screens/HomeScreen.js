@@ -16,17 +16,18 @@ import bellIcon from "../assets/bell.png";
 import infoIcon from "../assets/target.png";
 import tipIcon from "../assets/atom.png";
 import communityIcon from "../assets/comment.png";
+import { fetchHotPosts } from "../services/api";
 
 export default function HomeScreen() {
   const navigation = useNavigation();
 
   // api 연동 전에 사용하는 인기글 리스트
   const hotPostItems = [
-    "삼성전자 합격 후기",
-    "내 주식 왜 이러냐",
-    "나랑 글챌 같이 준비 할 사람",
-    "내 머뤼...자라나라",
-    "하이하이",
+    { post_id: 111, title: "삼성전자 합격 후기" },
+    { post_id: 222, title: "내 주식 왜 이러냐" },
+    { post_id: 333, title: "나랑 글챌 같이 준비 할 사람" },
+    { post_id: 444, title: "내 머뤼...자라나라" },
+    { post_id: 555, title: "하이하이" },
   ];
 
   // api 연동한다면 아래 코드 사용(수정될 가능성 높음)
@@ -34,16 +35,9 @@ export default function HomeScreen() {
   const [hotPostItems, setHotPostItems] = useState([]);
 
   useEffect(() => {
-    const data = await 인기글받아오는함수();
+    const data = await fetchHotPosts();
     setHotPostItems(data);
   }, [hotPostItems]);
-
-  아마 인기글 받아오는 함수는 이럴듯?
-  async function 인기글받아오는함수() {
-    const response = await fetch(`https://서버주소/api/posts/popular`);
-    const body = await response.json();
-    return body;
-  }
   */
 
   return (
@@ -118,9 +112,9 @@ export default function HomeScreen() {
           style={styles.postNameText}
           onPress={() => {
             //navigation.navigate(해당게시글로이동);
-            //예시: navigation.navigate(`${item.categoryId}/${item.postId}`);
+            //예시: navigation.navigate(`${item.categoryId}/${item.post_Id}`);
           }}
-        >{`${index + 1}. ${item}`}</Text>
+        >{`${index + 1}. ${item.title}`}</Text>
       ))}
     </ScrollView>
   );

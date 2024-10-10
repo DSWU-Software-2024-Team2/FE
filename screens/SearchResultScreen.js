@@ -17,12 +17,13 @@ import searchIcon from "../assets/search.png";
 import cautionIcon from "../assets/caution.png";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { FlatList } from "react-native-gesture-handler";
+import { fetchSearchResults } from "../services/api";
 
 export default function SearchResultScreen() {
   const route = useRoute();
   const { mainCategory, subCategory, keyword } = route.params;
 
-  const [selectedCategory, setSelectedCategory] = useState("전체"); //서브 카테고리. 전체가 디폴트
+  const [selectedCategory, setSelectedCategory] = useState(0); //서브 카테고리. 전체가 디폴트
   const [searchQuery, setSearchQuery] = useState(keyword);
   const navigation = useNavigation();
 
@@ -101,35 +102,27 @@ export default function SearchResultScreen() {
   /*
   const [searchResults, setSearchResults] = useState([]);
 
-  // 검색 API 요청 함수
-  async function fetchSearchResults() {
+  const handleSearch = () => {
     if (searchQuery.trim() === "") {
-      Alert.alert("검색어를 입력해 주세요.");
+      Alert.alert("검색어를 입력해 주세요."); // 검색어가 없는 경우 경고
       return;
     }
-    try {
-      const response = await fetch(
-        `https://서버주소/api/search?mainCategory=${mainCategory}&subCategory=${selectedCategory}&keyword=${searchQuery}`
-      );
-      const data = await response.json();
-      setSearchResults(data); // 검색 결과 저장
-    } catch (error) {
-      console.error("검색 결과를 가져오는 중 오류가 발생했습니다:", error);
+
+    if (searchQuery.trim().length < 2) {
+      Alert.alert("검색어는 2글자 이상 입력해 주세요."); // 검색어가 2글자 미만인 경우 경고 팝업 띄우기
+      return;
     }
-  }
+
+    const data = await fetchSearchResults(searchQuery, mainCategory, selectedCategory);
+    setSearchResults(data);
+  };
 
   // 검색어 변경 시 새로운 검색 요청
   useEffect(() => {
-    fetchSearchResults();
+    handleSearch();
   }, [selectedCategory]);
 
-  const handleSearch = () => {
-    if (searchQuery.trim() === "") {
-      Alert.alert("검색어를 입력해 주세요.");
-      return;
-    }
-    fetchSearchResults(); // 검색 결과 새로고침
-  };
+  
   */
 
   return (
@@ -168,14 +161,14 @@ export default function SearchResultScreen() {
                 if (searchQuery.trim().length < 2) {
                   Alert.alert("검색어는 2글자 이상 입력해 주세요.");
                 } else {
-                  setSelectedCategory("전체");
+                  setSelectedCategory(0);
                 }
               }}
             >
               <Text
                 style={[
                   styles.categorytext,
-                  selectedCategory === "전체" && styles.textActive,
+                  selectedCategory === 0 && styles.textActive,
                 ]}
               >
                 전체
@@ -187,14 +180,14 @@ export default function SearchResultScreen() {
                 if (searchQuery.trim().length < 2) {
                   Alert.alert("검색어는 2글자 이상 입력해 주세요.");
                 } else {
-                  setSelectedCategory("교내");
+                  setSelectedCategory(1);
                 }
               }}
             >
               <Text
                 style={[
                   styles.categorytext,
-                  selectedCategory === "교내" && styles.textActive,
+                  selectedCategory === 1 && styles.textActive,
                 ]}
               >
                 교내
@@ -206,14 +199,14 @@ export default function SearchResultScreen() {
                 if (searchQuery.trim().length < 2) {
                   Alert.alert("검색어는 2글자 이상 입력해 주세요.");
                 } else {
-                  setSelectedCategory("서포터즈/동아리");
+                  setSelectedCategory(2);
                 }
               }}
             >
               <Text
                 style={[
                   styles.categorytext,
-                  selectedCategory === "서포터즈/동아리" && styles.textActive,
+                  selectedCategory === 2 && styles.textActive,
                 ]}
               >
                 서포터즈/동아리
@@ -227,14 +220,14 @@ export default function SearchResultScreen() {
                 if (searchQuery.trim().length < 2) {
                   Alert.alert("검색어는 2글자 이상 입력해 주세요.");
                 } else {
-                  setSelectedCategory("자격증");
+                  setSelectedCategory(3);
                 }
               }}
             >
               <Text
                 style={[
                   styles.categorytext,
-                  selectedCategory === "자격증" && styles.textActive,
+                  selectedCategory === 3 && styles.textActive,
                 ]}
               >
                 자격증
@@ -246,14 +239,14 @@ export default function SearchResultScreen() {
                 if (searchQuery.trim().ength < 2) {
                   Alert.alert("검색어는 2글자 이상 입력해 주세요.");
                 } else {
-                  setSelectedCategory("공모전");
+                  setSelectedCategory(4);
                 }
               }}
             >
               <Text
                 style={[
                   styles.categorytext,
-                  selectedCategory === "공모전" && styles.textActive,
+                  selectedCategory === 4 && styles.textActive,
                 ]}
               >
                 공모전
@@ -265,14 +258,14 @@ export default function SearchResultScreen() {
                 if (searchQuery.trim().length < 2) {
                   Alert.alert("검색어는 2글자 이상 입력해 주세요.");
                 } else {
-                  setSelectedCategory("채용");
+                  setSelectedCategory(5);
                 }
               }}
             >
               <Text
                 style={[
                   styles.categorytext,
-                  selectedCategory === "채용" && styles.textActive,
+                  selectedCategory === 5 && styles.textActive,
                 ]}
               >
                 채용

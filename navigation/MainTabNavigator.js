@@ -8,6 +8,7 @@ import HoneyTipScreen from "../screens/HoneyTipScreen";
 import WritePostScreen from "../screens/WritePostScreen";
 import SearchResultScreen from "../screens/SearchResultScreen";
 import SearchScreen from "../screens/SearchScreen";
+import CartScreen from "../screens/CartScreen";
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -73,7 +74,7 @@ export default function MainTabNavigator() {
 
       <Tab.Screen
         name="Cart"
-        component={HomeScreen}
+        component={CartScreen}
         options={{ tabBarLabel: "장바구니" }}
       />
       <Tab.Screen

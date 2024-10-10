@@ -16,7 +16,7 @@ import searchIcon from "../assets/search.png";
 import { useNavigation } from "@react-navigation/native";
 
 export default function SearchScreen() {
-  const [selectedCategory, setSelectedCategory] = useState("전체");
+  const [selectedCategory, setSelectedCategory] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
   const navigation = useNavigation();
 
@@ -48,7 +48,7 @@ export default function SearchScreen() {
     // 검색 API 호출 및 결과 화면으로 이동.
     navigation.navigate("SearchResult", {
       mainCategory: selectedCategory,
-      subCategory: "전체", // 메인 검색 화면에서의 검색하면 세부 카테고리 디폴트가 '전체'. 없어도 될듯???
+      subCategory: 0, // 메인 검색 화면에서의 검색하면 세부 카테고리 디폴트가 '전체'. 없어도 될듯???
       keyword: searchQuery,
     });
   };
@@ -59,7 +59,7 @@ export default function SearchScreen() {
     // 검색 API 호출 및 결과 화면으로 이동.
     navigation.navigate("SearchResult", {
       mainCategory: selectedCategory,
-      subCategory: "전체",
+      subCategory: 0,
       keyword: keyword,
     });
   };
@@ -83,13 +83,13 @@ export default function SearchScreen() {
           <TouchableOpacity
             style={styles.categoryButton}
             onPress={() => {
-              setSelectedCategory("전체");
+              setSelectedCategory(0);
             }}
           >
             <Text
               style={[
                 styles.categorytext,
-                selectedCategory === "전체" && styles.textActive,
+                selectedCategory === 0 && styles.textActive,
               ]}
             >
               전체
@@ -116,13 +116,13 @@ export default function SearchScreen() {
           <TouchableOpacity
             style={styles.categoryButton}
             onPress={() => {
-              setSelectedCategory("꿀팁 거래");
+              setSelectedCategory(1);
             }}
           >
             <Text
               style={[
                 styles.categorytext,
-                selectedCategory === "꿀팁 거래" && styles.textActive,
+                selectedCategory === 1 && styles.textActive,
               ]}
             >
               꿀팁 거래
@@ -131,13 +131,13 @@ export default function SearchScreen() {
           <TouchableOpacity
             style={styles.categoryButton}
             onPress={() => {
-              setSelectedCategory("커뮤니티");
+              setSelectedCategory(2);
             }}
           >
             <Text
               style={[
                 styles.categorytext,
-                selectedCategory === "커뮤니티" && styles.textActive,
+                selectedCategory === 2 && styles.textActive,
               ]}
             >
               커뮤니티

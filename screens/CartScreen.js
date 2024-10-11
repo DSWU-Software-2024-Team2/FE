@@ -29,7 +29,7 @@ import { useNavigation } from "@react-navigation/native";
 import uncheckIcon from "../assets/uncheck.png";
 import checkIcon from "../assets/check.png";
 import mileageIcon from "../assets/honey_mileage.png";
-import { fetchCartLists } from "../services/api";
+import { fetchCartLists, requestPayment } from "../services/api";
 
 export default function CartScreen() {
   const [cartLists, setCartLists] = useState([]);
@@ -83,26 +83,40 @@ export default function CartScreen() {
 
   const handleCheckBoxClick = () => {};
 
-  const handlePayClick = () => {
-    Alert.alert("구매하기", "선택한 게시글들을 구매하시겠습니까?", [
-      {
-        text: "예",
-        onPress: () => {
-          /*
-                    if(보유 마일리지가 부족) {
-                        Alert.alert("마일리지가 부족합니다.");
-                    } else {
-                        Alert.alert("~~ 마일리지가 사용되었습니다.");
-                        setIsPaid(!isPaid);
-                    }
-                */
+  const handlePayClick = async () => {
+    const confirm = await new Promise((resolve) => {
+      Alert.alert("구매하기", "선택한 게시글들을 구매하시겠습니까?", [
+        {
+          text: "예",
+          onPress: () => resolve(true),
         },
-      },
-      {
-        text: "아니요",
-        style: "cancel",
-      },
-    ]);
+        {
+          text: "아니요",
+          style: "cancel",
+          onPress: () => resolve(false),
+        },
+      ]);
+    });
+
+    if (confirm) {
+      try {
+        // 선택한 게시글들에 대해 결제 요청 보내기
+        for (const item of cartLists) {
+          const response = await requestPayment(
+            item.post_id,
+            item.post_mileage
+          );
+          if (response) {
+            console.log(`게시글 ${item.post_id} 결제 성공`);
+          } else {
+            console.error(`게시글 ${item.post_id} 결제 실패`);
+          }
+        }
+        setIsPaid(true); // 결제 완료 처리
+      } catch (error) {
+        console.error("결제 처리 중 에러 발생:", error);
+      }
+    }
   };
 
   const renderItem = ({ item }) => {

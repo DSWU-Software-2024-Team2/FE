@@ -4,10 +4,11 @@ import { NavigationContainer } from "@react-navigation/native";
 import MainTabNavigator from "./navigation/MainTabNavigator";
 import LoginScreen from "./screens/LoginScreen";
 import { createStackNavigator } from "@react-navigation/stack";
+import PayPostScreen from "./screens/PayPostScreen";
 
 const Stack = createStackNavigator();
 
-export default function App() {
+/*export default function App() {
   return (
     <NavigationContainer>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
@@ -16,7 +17,7 @@ export default function App() {
       </Stack.Navigator>
     </NavigationContainer>
   );
-}
+}*/
 
 /*
 export default function App() {
@@ -27,6 +28,10 @@ export default function App() {
   );
 }
 */
+
+export default function App() {
+  return <PayPostScreen />;
+}
 
 const styles = StyleSheet.create({
   container: {

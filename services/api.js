@@ -180,7 +180,7 @@ export async function fetchCartLists() {
 
     const data = await response.json();
     if (response.ok) {
-      return data.items; // 장바구니 항목 반환
+      return data.cartItems; // 장바구니 항목 반환
     } else {
       throw new Error(
         data.message || "장바구니 항목을 가져오는 데 실패했습니다."
@@ -189,6 +189,44 @@ export async function fetchCartLists() {
   } catch (error) {
     console.error("오류 발생:", error);
     return []; // 오류 발생 시 빈 배열 반환
+  }
+}
+
+// 결제 요청
+export async function requestPayment(postId, requestedAmount) {
+  try {
+    // AsyncStorage에서 userId를 가져옴
+    const userId = await AsyncStorage.getItem("userId");
+
+    if (!userId) {
+      throw new Error("User ID가 없습니다. 로그인하세요.");
+    }
+
+    // API 호출
+    const response = await fetch(
+      `${API_BASE_URL}/payment/request?postId=${postId}&userId=${userId}&requestedAmount=${requestedAmount}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    const data = await response.json();
+
+    if (response.ok) {
+      // 결제 요청 성공 시 처리
+      console.log("결제 요청 성공:", data);
+      return data; // 성공 시 응답 데이터 반환
+    } else {
+      // 결제 요청 실패 시 처리
+      console.error("결제 요청 실패:", data.message);
+      return null; // 실패 시 null 반환
+    }
+  } catch (error) {
+    console.error("결제 요청 중 에러 발생:", error);
+    return null; // 에러 발생 시 null 반환
   }
 }
 

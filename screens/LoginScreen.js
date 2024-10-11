@@ -23,13 +23,14 @@ export default function LoginScreen() {
   const navigation = useNavigation();
 
   const handleLogin = async () => {
-    const response = await login(email, password);
+    /*const response = await login(email, password);
 
     if (response) {
       navigation.navigate("Main");
     } else {
       Alert.alert("잘못된 아이디 또는 비밀번호를 입력하셨습니다!");
-    }
+    }*/
+    navigation.navigate("Main");
   };
 
   return (

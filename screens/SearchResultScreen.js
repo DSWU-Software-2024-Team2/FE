@@ -1,4 +1,5 @@
 // 유예린
+// 서브 카테고리 받아서 한글로 처리하는 거 추가
 
 import { useState, useEffect } from "react";
 import {
@@ -11,6 +12,7 @@ import {
   TouchableOpacity,
   TextInput,
   Alert,
+  ActivityIndicator,
 } from "react-native";
 import goBackIcon from "../assets/go_back.png";
 import searchIcon from "../assets/search.png";
@@ -22,13 +24,14 @@ import { fetchSearchResults } from "../services/api";
 export default function SearchResultScreen() {
   const route = useRoute();
   const { mainCategory, subCategory, keyword } = route.params;
-
+  const [searchResults, setSearchResults] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(0); //서브 카테고리. 전체가 디폴트
   const [searchQuery, setSearchQuery] = useState(keyword);
+  const [loading, setLoading] = useState(false);
   const navigation = useNavigation();
 
   // api 연결 전까지 사용
-  const handleSearch = () => {
+  /*const handleSearch = () => {
     if (searchQuery.trim() === "") {
       Alert.alert("검색어를 입력해 주세요."); // 검색어가 없는 경우 경고
       return;
@@ -38,10 +41,10 @@ export default function SearchResultScreen() {
       Alert.alert("검색어는 2글자 이상 입력해 주세요."); // 검색어가 2글자 미만인 경우 경고 팝업 띄우기
       return;
     }
-  };
+  };*/
 
   // api 연결 전까지 사용
-  const searchResults = [
+  /*const searchResults = [
     {
       post_id: 1,
       title: "검색 결과 예시1",
@@ -77,7 +80,7 @@ export default function SearchResultScreen() {
       post_mileage: 300,
       sub_category_name: "카테고리5",
     },
-  ];
+  ];*/
 
   const renderItem = ({ item }) => (
     <TouchableOpacity
@@ -99,10 +102,8 @@ export default function SearchResultScreen() {
   );
 
   // api 연결 후 아래 코드 사용
-  /*
-  const [searchResults, setSearchResults] = useState([]);
 
-  const handleSearch = () => {
+  const handleSearch = async () => {
     if (searchQuery.trim() === "") {
       Alert.alert("검색어를 입력해 주세요."); // 검색어가 없는 경우 경고
       return;
@@ -112,18 +113,31 @@ export default function SearchResultScreen() {
       Alert.alert("검색어는 2글자 이상 입력해 주세요."); // 검색어가 2글자 미만인 경우 경고 팝업 띄우기
       return;
     }
+    setLoading(true);
 
-    const data = await fetchSearchResults(searchQuery, mainCategory, selectedCategory);
-    setSearchResults(data);
+    try {
+      const data = await fetchSearchResults(
+        searchQuery,
+        mainCategory,
+        selectedCategory
+      );
+      if (data === undefined) {
+        setSearchResults([]);
+      } else {
+        setSearchResults(data);
+      }
+      console.log(data);
+    } catch (error) {
+      console.log("API 호출 중 오류 발생", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   // 검색어 변경 시 새로운 검색 요청
   useEffect(() => {
     handleSearch();
   }, [selectedCategory]);
-
-  
-  */
 
   return (
     <View style={styles.searchMain}>
@@ -276,8 +290,10 @@ export default function SearchResultScreen() {
       )}
 
       {/* 검색 결과 게시글들 띄우기. 만약 검색 결과가 없으면 없다고 띄우기 */}
-      {searchResults.length === 0 ? (
-        <View style={styles.noResultConainer}>
+      {loading ? (
+        <ActivityIndicator size="large" color="#007AFF" /> // 로딩 스피너
+      ) : searchResults.length === 0 ? (
+        <View style={styles.noResultContainer}>
           <Image style={styles.cautionIcon} source={cautionIcon} />
           <Text style={styles.noResultText}>
             조회할 수 있는{"\n"}게시글이 없습니다.
@@ -358,7 +374,6 @@ const styles = StyleSheet.create({
   categorytext: {
     textAlign: "center",
     color: "#a5a5a5",
-    fontFamily: "Inter-Bold",
     fontWeight: "700",
     //lineHeight: 23,
     letterSpacing: -0.3,
@@ -382,7 +397,7 @@ const styles = StyleSheet.create({
     borderRightWidth: 1,
     borderColor: "rgba(122, 122, 122, 0.18)",
   },
-  noResultConainer: {
+  noResultContainer: {
     gap: 15,
     marginTop: 50,
     justifyContent: "center",

@@ -44,6 +44,7 @@ import mileageIcon from "../assets/honey_mileage.png";
 import cartIcon from "../assets/cart.png";
 import viewIcon from "../assets/view.png";
 import likeIcon from "../assets/like.png";
+import dislikeIcon from "../assets/dislike.png";
 import lockIcon from "../assets/lock.png";
 import vvipIcon from "../assets/vvip.png";
 import vipIcon from "../assets/vip.png";
@@ -55,12 +56,14 @@ import {
   handleCartClick,
   handleLikeClick,
   handleRemoveLikeClick,
+  handleDislikePress,
 } from "../services/api";
 
 export default function PayPostScreen() {
   // 이렇게 하면 게시글 들어올 때마다 좋아요 여부와 장바구니 여부가 리셋돼서 중복 좋아요와 장바구니 담기 가능하게 됨
   // 좋아요 여부, 장바구니에 해당 게시글이 담겨있는지 여부 확인하는 api가 있으면 좋을 것 같긴 함
   const [liked, setLiked] = useState(false);
+  const [disliked, setDisliked] = useState(false);
   const [cart, setCart] = useState(false);
   //const [post, setPost] = useState(null);
   //const [user, setUser] = useState(null);
@@ -101,7 +104,61 @@ export default function PayPostScreen() {
     }
   };
 
-  const handleLikePress = () => {
+  const handleDislikePress = async () => {
+    if (isAuthorized) {
+      if (disliked) {
+        Alert.alert("싫어요 취소", "싫어요를 취소하겠습니까?", [
+          {
+            text: "예",
+            onPress: () => {
+              // 좋아요 취소 보내기
+              /*
+              const result = await handleRemoveLikeClick(postId, post.userId);
+              if (result) {
+                setLiked(false);
+                Alert.alert("좋아요를 취소했습니다.");
+              } else {
+                Alert.alert("좋아요 취소에 실패했습니다.");
+              }
+              */
+              setDisliked(false);
+              Alert.alert("싫어요를 취소했습니다.");
+            }, // '예'를 누르면 좋아요 취소 + api 보내는 거 추가하기
+          },
+          {
+            text: "아니요",
+            style: "cancel",
+          },
+        ]);
+      } else {
+        Alert.alert("싫어요", "이 게시글에 싫어요를 누르겠습니까?", [
+          {
+            text: "예",
+            onPress: () => {
+              // 싫어요 보내기.
+              /*
+            const result = await handleDislikeClick(postId);
+            if (result) {
+              setLiked(true);
+              Alert.alert("싫어요를 눌렀습니다!");
+            } else {
+              Alert.alert("싫어요 누르기에 실패했습니다.");
+            }
+            */
+              setDisliked(true);
+              Alert.alert("싫어요를 눌렀습니다!");
+            }, // '예'를 누르면 좋아요 + api 보내는 거 추가하기
+          },
+          {
+            text: "아니요",
+            style: "cancel",
+          },
+        ]);
+      }
+    }
+  };
+
+  const handleLikePress = async () => {
     if (isAuthorized) {
       if (liked) {
         Alert.alert("좋아요 취소", "좋아요를 취소하겠습니까?", [
@@ -183,7 +240,8 @@ export default function PayPostScreen() {
     // image: [이미지가 여러 개면 리스트 형태로 갖다줄려나??],
     // file: 파일 첨부가 가능하다면 추가,
     view: 12,
-    like: 2,
+    likes: 2,
+    dislikes: 0,
     author_Id: 1,
   };
 
@@ -348,7 +406,14 @@ export default function PayPostScreen() {
             onPress={handleLikePress}
           >
             <Image style={styles.likeIcon} source={likeIcon} />
-            <Text>{post.like}</Text>
+            <Text>{post.likes}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.footerContainer}
+            onPress={handleDislikePress}
+          >
+            <Image style={styles.likeIcon} source={dislikeIcon} />
+            <Text>{post.dislikes}</Text>
           </TouchableOpacity>
         </View>
       </View>

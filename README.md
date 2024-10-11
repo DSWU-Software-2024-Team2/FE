@@ -1,5 +1,6 @@
 ## 사용 라이브러리
 
+- @react-native-async-storage/async-storage <<< NEW!!!
 - expo-blur <<< NEW!!!
 - @react-navigation/native
 - @react-navigation/native-stack

@@ -4,12 +4,14 @@
   꿀팁 게시판에서 연결은 나중에  
 
   댓글 목록은 일단 보류
+
+  현재 유저의 id를 어떻게 받아오지??? 로그인 이후에 유저 id를 context에 저장하면 될 듯 나중에 구현
 */
 
 /*
   api를 통해서 받아야 될 것:
   1. 게시글 정보 - 게시글 가격(마일리지), 게시글 제목, 게시글 내용, (사진이랑 파일 첨부가 가능하다면 게시글 사진, 파일),
-  조회수, 좋아요 수, 유저 id(이걸 넘겨줘야 유저 정보를 받아올 수 있게 됨)
+  조회수, 좋아요 수, 작성자 id(이걸 넘겨줘야 유저 정보를 받아올 수 있게 됨)
   
   2. 작성자 정보 - 작성자 프로필 사진, 작성자 이름, 작성자 등급(아니면 membershipController로 가져와도 될 듯)
   
@@ -47,6 +49,13 @@ import vvipIcon from "../assets/vvip.png";
 import vipIcon from "../assets/vip.png";
 import basicIcon from "../assets/basic.png";
 import { useRoute } from "@react-navigation/native";
+import {
+  fetchPostDetail,
+  fetchUserData,
+  handleCartClick,
+  handleLikeClick,
+  handleRemoveLikeClick,
+} from "../services/api";
 
 export default function PayPostScreen() {
   // 이렇게 하면 게시글 들어올 때마다 좋아요 여부와 장바구니 여부가 리셋돼서 중복 좋아요와 장바구니 담기 가능하게 됨
@@ -69,7 +78,17 @@ export default function PayPostScreen() {
         {
           text: "예",
           onPress: () => {
-            // 장바구니에 추가하는 api
+            // 장바구니에 추가하는 api. createdAt이 정확히 뭔지 모르겠음
+            /*
+            const createdAt = new Date().toISOString();
+            const result = await handleCartClick(postId, post.author_Id, createdAt, post.title, post.mileage);
+            if (result) {
+              setCart(true);
+              Alert.alert("게시글을 장바구니에 담았습니다!");
+            } else {
+              Alert.alert("장바구니 담기에 실패했습니다.")
+            }
+            */
             setCart(true);
             Alert.alert("게시글을 장바구니에 담았습니다!");
           }, // 장바구니에 담기. api 보내는 거 추가
@@ -89,6 +108,16 @@ export default function PayPostScreen() {
           {
             text: "예",
             onPress: () => {
+              // 좋아요 취소 보내기
+              /*
+              const result = await handleRemoveLikeClick(postId, post.userId);
+              if (result) {
+                setLiked(false);
+                Alert.alert("좋아요를 취소했습니다.");
+              } else {
+                Alert.alert("좋아요 취소에 실패했습니다.");
+              }
+              */
               setLiked(false);
               Alert.alert("좋아요를 취소했습니다.");
             }, // '예'를 누르면 좋아요 취소 + api 보내는 거 추가하기
@@ -103,6 +132,17 @@ export default function PayPostScreen() {
           {
             text: "예",
             onPress: () => {
+              // 좋아요 보내기. reactionType이 정확히 뭔지 모르겠음
+              /*
+            const reactionAt = new Date().toISOString();
+            const result = await handleLikeClick(postId, "like", reactionAt);
+            if (result) {
+              setLiked(true);
+              Alert.alert("좋아요를 눌렀습니다!");
+            } else {
+              Alert.alert("좋아요 누르기에 실패했습니다.");
+            }
+            */
               setLiked(true);
               Alert.alert("좋아요를 눌렀습니다!");
             }, // '예'를 누르면 좋아요 + api 보내는 거 추가하기
@@ -144,34 +184,34 @@ export default function PayPostScreen() {
     // file: 파일 첨부가 가능하다면 추가,
     view: 12,
     like: 2,
-    userId: 1,
+    author_Id: 1,
   };
 
   /*
   post 변수도 state로 만들지 고민
   useEffect(() => {
     try{
-      const postData = await 게시글정보받아오는함수(postId);
+      const postData = await fetchPostDetail(postId);
       setPost(postData);
 
-      const userData = await 유저정보받아오는함수(postData.userId);
+      const userData = await fetchUserData(postData.author_Id);
       setUser(userData);
 
-      const response = await 게시글구매여부받아오는함수(postData.userId, postId);
+      const response = await 게시글구매여부받아오는함수(userId, postId);
       if(response){
         setIsAuthorized(true);
       } else {
         setIsAuthorized(false);
       }
 
-      const isLiked = await 좋아요여부받아오는함수(postData.userId, postId);
+      const isLiked = await 좋아요여부받아오는함수(userId, postId);
       if(isLiked){
         setLiked(true);
       } else {
         setLiked(false);
       }
 
-      const isCarted = awiat 장바구니에담았는지확인하는함수(postData.userId, postId);
+      const isCarted = awiat 장바구니에담았는지확인하는함수(userId, postId);
       if(isCarted){
         setCart(true);
       } else {

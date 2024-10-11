@@ -9,7 +9,7 @@
 
 선택 결제를 어떻게 구현해야 될지 모르겠음...
 
-장바구니가 비어있으면 비어있다고 해야 되나?
+장바구니가 비어있으면 비어있다고 알려주기
 */
 
 import { useState, useEffect } from "react";
@@ -25,19 +25,25 @@ import {
   Alert,
   FlatList,
 } from "react-native";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import uncheckIcon from "../assets/uncheck.png";
 import checkIcon from "../assets/check.png";
 import mileageIcon from "../assets/honey_mileage.png";
-import { fetchCartLists, requestPayment } from "../services/api";
+import {
+  fetchCartLists,
+  requestPayment,
+  handleCartToggle,
+} from "../services/api";
+import { formatDate, formatSubCategory } from "../utils/format";
 
 export default function CartScreen() {
   const [cartLists, setCartLists] = useState([]);
   const [isChecked, setIsChecked] = useState(false);
   const [isPaid, setIsPaid] = useState(false);
+  const [totalMileage, setTotalMileage] = useState();
 
   // api 연결 전까지 사용
-  const lists = [
+  /*const lists = [
     {
       post_id: 1,
       title: "대외활동 4개 이상 활동한 갓생러의 어쩌구저쩌구쏼라쏼라",
@@ -74,16 +80,26 @@ export default function CartScreen() {
       sub_category_name: "공모전",
       post_mileage: 150,
     },
-  ];
+  ];*/
 
-  const totalMileage = lists.reduce(
+  /*const totalMileage = cartLists.reduce(
     (total, item) => total + item.post_mileage,
     0
-  );
-
-  const handleCheckBoxClick = () => {};
+  );*/
+  const handleCheckBoxClick = async (itemId) => {
+    try {
+      const response = await handleCartToggle(itemId);
+      if (response) {
+        // 장바구니 아이템 목록 및 총 마일리지 업데이트
+        fetchData();
+      }
+    } catch (error) {
+      console.error("토글 중 오류 발생:", error);
+    }
+  };
 
   const handlePayClick = async () => {
+    if (isPaid) return;
     const confirm = await new Promise((resolve) => {
       Alert.alert("구매하기", "선택한 게시글들을 구매하시겠습니까?", [
         {
@@ -99,22 +115,22 @@ export default function CartScreen() {
     });
 
     if (confirm) {
+      setIsPaid(true);
       try {
         // 선택한 게시글들에 대해 결제 요청 보내기
-        for (const item of cartLists) {
-          const response = await requestPayment(
-            item.post_id,
-            item.post_mileage
-          );
-          if (response) {
-            console.log(`게시글 ${item.post_id} 결제 성공`);
-          } else {
-            console.error(`게시글 ${item.post_id} 결제 실패`);
-          }
+        const response = await requestPayment();
+        if (response) {
+          console.log(`게시글 결제 성공`);
+          Alert.alert("결제가 성공적으로 완료되었습니다!");
+        } else {
+          console.error(`게시글 결제 실패`);
+          Alert.alert("결제 실패");
         }
-        setIsPaid(true); // 결제 완료 처리
       } catch (error) {
         console.error("결제 처리 중 에러 발생:", error);
+        Alert.alert("결제 실패");
+      } finally {
+        setIsPaid(false);
       }
     }
   };
@@ -147,7 +163,12 @@ export default function CartScreen() {
                 {item.title}
               </Text>
             </TouchableOpacity>
-            <Image style={{ width: 24, height: 24 }} source={uncheckIcon} />
+            <TouchableOpacity onPress={() => handleCheckBoxClick(item.id)}>
+              <Image
+                style={{ width: 24, height: 24 }}
+                source={item.isActive ? checkIcon : uncheckIcon}
+              />
+            </TouchableOpacity>
           </View>
           <View
             style={{
@@ -160,7 +181,7 @@ export default function CartScreen() {
               <Text
                 style={{ fontSize: 13, letterSpacing: -0.3, lineHeight: 20 }}
               >
-                {item.name} | 화학
+                {item.authorNickname} | {item.authorMajor}
               </Text>
               <Text
                 style={{
@@ -170,7 +191,8 @@ export default function CartScreen() {
                   color: "rgba(97, 97, 100, 0.68)",
                 }}
               >
-                {item.created_at} | {item.sub_category_name}
+                {formatDate(item.createdAt)} |{" "}
+                {formatSubCategory(item.subCategory)}
               </Text>
             </View>
             <View
@@ -195,7 +217,7 @@ export default function CartScreen() {
                   color: "rgba(97, 97, 100, 0.68)",
                 }}
               >
-                {item.post_mileage}
+                {item.mileage}
               </Text>
             </View>
           </View>
@@ -214,12 +236,17 @@ export default function CartScreen() {
     );
   };
 
-  /*
+  const fetchData = async () => {
+    const lists = await fetchCartLists(); // 비동기 작업 수행
+    console.log(lists.cartItems);
+    console.log(lists.totalMileage);
+    setCartLists(lists.cartItems); // 상태 업데이트
+    setTotalMileage(lists.totalMileage);
+  };
+
   useEffect(() => {
-    const lists = await fetchCartLists(userId?);
-    setCartLists(lists);
+    fetchData(); // 비동기 함수 호출
   }, [isPaid]);
-  */
 
   return (
     <View style={{ flex: 1, backgroundColor: "fff" }}>
@@ -227,9 +254,9 @@ export default function CartScreen() {
         <Text style={styles.title}>장바구니</Text>
 
         <FlatList
-          data={lists}
+          data={cartLists}
           renderItem={renderItem}
-          keyExtractor={(item) => item.post_id.toString()}
+          keyExtractor={(item) => item.id}
           showsVerticalScrollIndicator={false}
         />
       </View>

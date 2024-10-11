@@ -8,7 +8,7 @@ import PayPostScreen from "./screens/PayPostScreen";
 
 const Stack = createStackNavigator();
 
-/*export default function App() {
+export default function App() {
   return (
     <NavigationContainer>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
@@ -17,7 +17,7 @@ const Stack = createStackNavigator();
       </Stack.Navigator>
     </NavigationContainer>
   );
-}*/
+}
 
 /*
 export default function App() {
@@ -29,9 +29,9 @@ export default function App() {
 }
 */
 
-export default function App() {
+/*export default function App() {
   return <PayPostScreen />;
-}
+}*/
 
 const styles = StyleSheet.create({
   container: {

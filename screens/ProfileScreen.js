@@ -1,25 +1,61 @@
 //은영
-// screens/ProfileScreen.js
 import React, { useState, useEffect } from "react";
-import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
+import {
+  View,
+  Text,
+  Image,
+  StyleSheet,
+  TouchableOpacity,
+  ActivityIndicator,
+} from "react-native";
+// import { fetchUserProfile } from "../services/api"; // API 함수 임시 주석 처리
 
 export default function ProfileScreen({ navigation }) {
   const [userProfile, setUserProfile] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // API 연동 부분 주석 처리
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      // const response = await fetchUserProfile(); // API 호출 주석 처리
+      // setUserProfile(response);
+
+      // 임시로 테스트할 사용자 정보
+      const tempUserProfile = {
+        membershipLevel: "VIP",
+        profilePicture: "../assets/profile_ex.jpeg", // 임시 로컬 이미지
+        nickname: "은영",
+        major: "빅데이터학과",
+        totalMileage: 5000,
+      };
+
+      setUserProfile(tempUserProfile);
+      setLoading(false);
+    } catch (err) {
+      setError(err.message);
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const profile = {
-      status: "VVIP",
-      name: "화학 사랑해요",
-      major: "화학전공 | 20학번",
-      mileage: 10000,
-    };
-    setUserProfile(profile);
+    fetchData();
   }, []);
+
+  if (loading) {
+    return <ActivityIndicator size="large" color="#0000ff" />;
+  }
+
+  if (error) {
+    return <Text>오류 발생: {error}</Text>;
+  }
 
   return (
     <View style={styles.container}>
       <View style={styles.titleContainer}>
         <Text style={styles.title}>내 정보</Text>
+        {/* 'Information' 스크린으로 이동 */}
         <TouchableOpacity onPress={() => navigation.navigate("Information")}>
           <Image
             source={require("../assets/question.png")}
@@ -28,7 +64,6 @@ export default function ProfileScreen({ navigation }) {
         </TouchableOpacity>
       </View>
 
-      {/* 프로필 카드 */}
       <View style={styles.profileCard}>
         <View style={styles.profileHeader}>
           <View style={styles.vipContainer}>
@@ -36,7 +71,7 @@ export default function ProfileScreen({ navigation }) {
               source={require("../assets/bee.png")}
               style={styles.beeIcon}
             />
-            <Text style={styles.vipText}>VVIP</Text>
+            <Text style={styles.vipText}>{userProfile?.membershipLevel}</Text>
           </View>
           <TouchableOpacity>
             <Text style={styles.editButtonText}>✏️ 프로필 수정하기</Text>
@@ -45,24 +80,27 @@ export default function ProfileScreen({ navigation }) {
 
         <View style={styles.profileInfoContainer}>
           <Image
-            source={require("../assets/profile_ex.jpeg")}
+            source={
+              userProfile?.profilePicture === "../assets/profile_ex.jpeg"
+                ? require("../assets/profile_ex.jpeg")
+                : { uri: userProfile?.profilePicture }
+            }
             style={styles.profileImage}
           />
           <View style={styles.profileInfo}>
-            <Text style={styles.profileName}>{userProfile?.name}</Text>
+            <Text style={styles.profileName}>{userProfile?.nickname}</Text>
             <Text style={styles.profileMajor}>{userProfile?.major}</Text>
             <View style={styles.mileageContainer}>
               <Image
                 source={require("../assets/honey_mileage.png")}
                 style={styles.mileageIcon}
               />
-              <Text style={styles.mileage}>{userProfile?.mileage}</Text>
+              <Text style={styles.mileage}>{userProfile?.totalMileage}</Text>
             </View>
           </View>
         </View>
       </View>
 
-      {/* 마일리지 내역, 내가 쓴 글, 댓글 단 글 */}
       <View style={styles.section}>
         <TouchableOpacity style={styles.sectionItem}>
           <Image

@@ -1,4 +1,4 @@
-// screens/SplashScreen.js
+// SplashScreen.js
 import React, { useEffect } from "react";
 import { View, Image, Text, StyleSheet } from "react-native";
 import { useNavigation } from "@react-navigation/native";
@@ -7,17 +7,20 @@ export default function SplashScreen() {
   const navigation = useNavigation();
 
   useEffect(() => {
-    // 2초 후에 Login Main Screen으로 이동
+    // 2초 후에 로그인 메인 화면으로 이동
     const timer = setTimeout(() => {
       navigation.navigate("LoginMain");
     }, 2000);
-    return () => clearTimeout(timer); // 컴포넌트 언마운트 시 타이머 정리
+    return () => clearTimeout(timer); // 타이머 정리
   }, [navigation]);
 
   return (
     <View style={styles.container}>
+      {/* 로고 이미지 */}
       <Image source={require("../assets/logo.png")} style={styles.logo} />
-      <Text style={styles.honeyText}>HoneyWeb</Text> {/* 금색 텍스트 추가 */}
+
+      {/* 텍스트는 반드시 Text 컴포넌트로 감싸야 합니다. */}
+      <Text style={styles.honeyText}>HoneyWeb</Text>
     </View>
   );
 }
@@ -30,13 +33,13 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFFFFF",
   },
   logo: {
-    width: 200,
-    height: 200,
+    width: 300,
+    height: 300,
   },
   honeyText: {
-    fontSize: 30,
+    fontSize: 50,
     fontWeight: "bold",
-    color: "#D4AF37", // 금색 텍스트
-    marginTop: 20, // 로고와의 간격
+    color: "#D4AF37",
+    marginTop: 20,
   },
 });

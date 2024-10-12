@@ -1,3 +1,4 @@
+//은영
 // SplashScreen.js
 import React, { useEffect } from "react";
 import { View, Image, Text, StyleSheet } from "react-native";

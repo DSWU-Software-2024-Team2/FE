@@ -14,6 +14,7 @@ import {
 } from "react-native";
 import searchIcon from "../assets/search.png";
 import { useNavigation } from "@react-navigation/native";
+import { saveSearchKeyword } from "../services/api";
 
 export default function SearchScreen() {
   const [selectedCategory, setSelectedCategory] = useState(0);
@@ -34,7 +35,7 @@ export default function SearchScreen() {
     "집 가고 싶다",
   ];
 
-  const handleSearch = () => {
+  const handleSearch = async () => {
     if (searchQuery.trim() === "") {
       Alert.alert("검색어를 입력해 주세요."); // 검색어가 없는 경우 경고 팝업 띄우기
       return;
@@ -44,6 +45,9 @@ export default function SearchScreen() {
       Alert.alert("검색어는 2글자 이상 입력해 주세요."); // 검색어가 2글자 미만인 경우 경고 팝업 띄우기
       return;
     }
+
+    const result = await saveSearchKeyword(searchQuery);
+    if (!result) console.log("검색어 저장 실패");
 
     // 검색 API 호출 및 결과 화면으로 이동.
     navigation.navigate("SearchResult", {
@@ -159,7 +163,6 @@ export default function SearchScreen() {
           <Image style={styles.icon} resizeMode="cover" source={searchIcon} />
         </TouchableOpacity>
       </View>
-
       <View style={styles.rankings}>
         <Text style={styles.honeywebContainer}>
           <Text style={styles.honeyweb}>HoneyWeb</Text>
@@ -237,7 +240,6 @@ const styles = StyleSheet.create({
   categorytext: {
     textAlign: "center",
     color: "#a5a5a5",
-    fontFamily: "Inter-Bold",
     fontWeight: "700",
     //lineHeight: 23,
     letterSpacing: -0.3,

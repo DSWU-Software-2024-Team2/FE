@@ -33,6 +33,8 @@ import {
   fetchCartLists,
   requestPayment,
   handleCartToggle,
+  clearCart,
+  deleteActiveCartItems,
 } from "../services/api";
 import { formatDate, formatSubCategory } from "../utils/format";
 
@@ -40,11 +42,15 @@ export default function CartScreen() {
   const [cartLists, setCartLists] = useState([]);
   const [isChecked, setIsChecked] = useState(false);
   const [isPaid, setIsPaid] = useState(false);
+  const [isDeleted, setIsDeleted] = useState(false);
   const [totalMileage, setTotalMileage] = useState();
+  const [loading, setLoading] = useState(false);
 
   // api 연결 전까지 사용
-  /*const lists = [
+  /*
+  const lists = [
     {
+      id: 1,
       post_id: 1,
       title: "대외활동 4개 이상 활동한 갓생러의 어쩌구저쩌구쏼라쏼라",
       name: "화학 사랑해요",
@@ -54,6 +60,7 @@ export default function CartScreen() {
       post_mileage: 150,
     },
     {
+      id: 2,
       post_id: 230,
       title: "게시글 예시",
       name: "유저",
@@ -63,6 +70,7 @@ export default function CartScreen() {
       post_mileage: 200,
     },
     {
+      id: 3,
       post_id: 123,
       title: "게시글 예시2",
       name: "유저2",
@@ -72,6 +80,7 @@ export default function CartScreen() {
       post_mileage: 150,
     },
     {
+      id: 4,
       post_id: 333,
       title: "게시글 예시3",
       name: "유저3",
@@ -80,7 +89,9 @@ export default function CartScreen() {
       sub_category_name: "공모전",
       post_mileage: 150,
     },
-  ];*/
+  ];
+  */
+  //setCartLists(lists);
 
   /*const totalMileage = cartLists.reduce(
     (total, item) => total + item.post_mileage,
@@ -135,6 +146,52 @@ export default function CartScreen() {
     }
   };
 
+  const handleDeleteAllClick = () => {
+    Alert.alert("장바구니 비우기", "장바구니를 비우시겠습니까?", [
+      {
+        text: "예",
+        onPress: async () => {
+          const result = await clearCart();
+          if (result) {
+            setIsDeleted(!isDeleted);
+            Alert.alert("장바구니를 비웠습니다.");
+          } else {
+            Alert.alert("장바구니 비우기에 실패했습니다.");
+          }
+        },
+      },
+      {
+        text: "아니요",
+        style: "cancel",
+      },
+    ]);
+  };
+
+  const handleDeleteClick = () => {
+    Alert.alert(
+      "장바구니 삭제",
+      "선택한 게시글들을 장바구니에서 삭제하시겠습니까?",
+      [
+        {
+          text: "예",
+          onPress: async () => {
+            const result = await deleteActiveCartItems();
+            if (result) {
+              setIsDeleted(!isDeleted);
+              Alert.alert("선택한 게시글들을 장바구니에서 삭제했습니다.");
+            } else {
+              Alert.alert("장바구니 삭제에 실패했습니다.");
+            }
+          },
+        },
+        {
+          text: "아니요",
+          style: "cancel",
+        },
+      ]
+    );
+  };
+
   const renderItem = ({ item }) => {
     return (
       <>
@@ -148,7 +205,7 @@ export default function CartScreen() {
           >
             <TouchableOpacity
               onPress={() => {
-                // navigation.navigate("PostDeatil", { postId: item.post_id })
+                navigation.navigate("CartPost", { postId: item.post_id });
               }}
             >
               <Text
@@ -237,29 +294,83 @@ export default function CartScreen() {
   };
 
   const fetchData = async () => {
-    const lists = await fetchCartLists(); // 비동기 작업 수행
-    console.log(lists.cartItems);
-    console.log(lists.totalMileage);
-    setCartLists(lists.cartItems); // 상태 업데이트
-    setTotalMileage(lists.totalMileage);
+    setLoading(true);
+    try {
+      const lists = await fetchCartLists(); // 비동기 작업 수행
+      console.log(lists.cartItems);
+      console.log(lists.totalMileage);
+      setCartLists(lists.cartItems); // 상태 업데이트
+      setTotalMileage(lists.totalMileage);
+    } catch (error) {
+      console.log("API 호출 중 오류 발생", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
     fetchData(); // 비동기 함수 호출
-  }, [isPaid]);
+  }, [isPaid, isDeleted]);
 
   return (
     <View style={{ flex: 1, backgroundColor: "fff" }}>
       <View style={styles.main}>
         <Text style={styles.title}>장바구니</Text>
+        <View style={{ flexDirection: "row", gap: 10, marginBottom: 10 }}>
+          <TouchableOpacity
+            style={{
+              borderRadius: 15,
+              backgroundColor: "#000",
+              width: 80,
+              height: 30,
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+            onPress={handleDeleteAllClick}
+          >
+            <Text style={{ color: "#fff" }}>전체 삭제</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={{
+              borderRadius: 15,
+              borderStyle: "solid",
+              borderColor: "#000",
+              borderWidth: 1,
+              //backgroundColor: "#fff",
+              width: 80,
+              height: 30,
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+            onPress={handleDeleteClick}
+          >
+            <Text style={{ color: "#000" }}>선택 삭제</Text>
+          </TouchableOpacity>
+        </View>
 
-        <FlatList
-          data={cartLists}
-          renderItem={renderItem}
-          keyExtractor={(item) => item.id}
-          showsVerticalScrollIndicator={false}
-        />
+        {cartLists.length === 0 ? (
+          <Text
+            style={{
+              fontSize: 23,
+              letterSpacing: -0.5,
+              lineHeight: 35,
+              fontWeight: "700",
+              textAlign: "center",
+              marginTop: 70,
+            }}
+          >
+            장바구니가 비어있습니다.
+          </Text>
+        ) : (
+          <FlatList
+            data={cartLists}
+            renderItem={renderItem}
+            keyExtractor={(item) => item.id}
+            showsVerticalScrollIndicator={false}
+          />
+        )}
       </View>
+
       <TouchableOpacity style={styles.payContainer} onPress={handlePayClick}>
         <Text style={styles.payText}>{totalMileage} 마일리지 결제하기</Text>
       </TouchableOpacity>

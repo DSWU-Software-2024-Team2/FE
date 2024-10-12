@@ -9,6 +9,7 @@ import WritePostScreen from "../screens/WritePostScreen";
 import SearchResultScreen from "../screens/SearchResultScreen";
 import SearchScreen from "../screens/SearchScreen";
 import CartScreen from "../screens/CartScreen";
+import PayPostScreen from "../screens/PayPostScreen";
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -16,13 +17,14 @@ const Stack = createStackNavigator();
 function HoneyTipStack() {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="Home" component={HomeScreen} />
+      <Stack.Screen name="HomeMain" component={HomeScreen} />
       <Stack.Screen name="HoneyTip" component={HoneyTipScreen} />
       <Stack.Screen
         name="WritePost"
         component={WritePostScreen}
         options={{ title: "게시물 작성" }}
       />
+      <Stack.Screen name="HoneyTipPost" component={PayPostScreen} />
     </Stack.Navigator>
   );
 }
@@ -30,8 +32,18 @@ function HoneyTipStack() {
 function SearchStack() {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="Search" component={SearchScreen} />
+      <Stack.Screen name="SearchMain" component={SearchScreen} />
       <Stack.Screen name="SearchResult" component={SearchResultScreen} />
+      <Stack.Screen name="SearchPost" component={PayPostScreen} />
+    </Stack.Navigator>
+  );
+}
+
+function CartStack() {
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="CartMain" component={CartScreen} />
+      <Stack.Screen name="CartPost" component={PayPostScreen} />
     </Stack.Navigator>
   );
 }
@@ -71,10 +83,9 @@ export default function MainTabNavigator() {
         component={SearchStack}
         options={{ tabBarLabel: "검색" }}
       />
-
       <Tab.Screen
         name="Cart"
-        component={CartScreen}
+        component={CartStack}
         options={{ tabBarLabel: "장바구니" }}
       />
       <Tab.Screen

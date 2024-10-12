@@ -41,6 +41,7 @@ import userImg from "../assets/user_img.png";
 // 마일리지 아이콘 바뀔 확률 높음
 //import mileageIcon from "../assets/mileage.png";
 import mileageIcon from "../assets/honey_mileage.png";
+import buyIcon from "../assets/buy.png";
 import cartIcon from "../assets/cart.png";
 import viewIcon from "../assets/view.png";
 import likeIcon from "../assets/like.png";
@@ -56,7 +57,9 @@ import {
   handleCartClick,
   handleLikeClick,
   handleRemoveLikeClick,
-  handleDislikePress,
+  handleDislikeClick,
+  handleRemoveDislikeClick,
+  buyDirect,
 } from "../services/api";
 
 export default function PayPostScreen() {
@@ -65,35 +68,48 @@ export default function PayPostScreen() {
   const [liked, setLiked] = useState(false);
   const [disliked, setDisliked] = useState(false);
   const [cart, setCart] = useState(false);
-  //const [post, setPost] = useState(null);
+  const [post, setPost] = useState(null);
   //const [user, setUser] = useState(null);
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [error, setError] = useState(null);
 
-  //const route = useRoute();
-  //const { postId } = route.params;
+  const route = useRoute();
+  const { postId } = route.params;
 
-  const handleCartPress = () => {
-    if (cart) {
-      Alert.alert("이미 장바구니에 담은 글입니다!"); // 여유되면 장바구니 삭제 api 연결하기?
+  const handleBuyPress = () => {
+    if (isAuthorized) {
+      Alert.alert("이미 구매한 게시글입니다!");
     } else {
-      Alert.alert("장바구니 담기", "해당 글을 장바구니에 담으시겠습니까?", [
+      Alert.alert("구매하기", "해당 글을 구매하시겠습니까?", [
         {
           text: "예",
-          onPress: () => {
-            // 장바구니에 추가하는 api. createdAt이 정확히 뭔지 모르겠음
-            /*
-            const createdAt = new Date().toISOString();
-            const result = await handleCartClick(postId, post.author_Id, createdAt, post.title, post.mileage);
-            if (result) {
-              setCart(true);
-              Alert.alert("게시글을 장바구니에 담았습니다!");
+          onPress: async () => {
+            // 장바구니에 추가하는 api.
+            const result = await buyDirect(postId);
+            // 만약 장바구니에 이미 담겨있다면??
+            if (result.success === false) {
+              if (result.reason === "alreadyBuy") {
+                Alert.alert(
+                  "결제 실패",
+                  "이미 해당 게시글에 대한 거래가 존재합니다."
+                );
+              } else if (result.reason === "noMileage") {
+                Alert.alert(
+                  "결제 실패",
+                  "잔액이 부족합니다. 마일리지를 충전하세요."
+                );
+              } else {
+                Alert.alert("결제 실패", "알 수 없는 오류가 발생했습니다.");
+              }
             } else {
-              Alert.alert("장바구니 담기에 실패했습니다.")
+              Alert.alert(
+                "결제 성공",
+                `결제가 완료되었습니다! 남은 마일리지: ${result}`
+              );
             }
-            */
-            setCart(true);
-            Alert.alert("게시글을 장바구니에 담았습니다!");
+
+            /*setCart(true);
+            Alert.alert("게시글을 장바구니에 담았습니다!");*/
           }, // 장바구니에 담기. api 보내는 거 추가
         },
         {
@@ -104,25 +120,61 @@ export default function PayPostScreen() {
     }
   };
 
+  const handleCartPress = () => {
+    if (isAuthorized) {
+      Alert.alert("이미 구매한 게시글입니다!");
+    } else {
+      if (cart) {
+        Alert.alert("이미 장바구니에 담은 글입니다!"); // 여유되면 장바구니 삭제 api 연결하기?
+      } else {
+        Alert.alert("장바구니 담기", "해당 글을 장바구니에 담으시겠습니까?", [
+          {
+            text: "예",
+            onPress: async () => {
+              // 장바구니에 추가하는 api.
+              const result = await handleCartClick(postId);
+              // 만약 장바구니에 이미 담겨있다면??
+              if (result.success) {
+                setCart(true);
+                Alert.alert("게시글을 장바구니에 담았습니다!");
+              } else if (result.reason === "alreadyInCart") {
+                setCart(true);
+                Alert.alert("이미 장바구니에 담은 글입니다!");
+              } else {
+                Alert.alert("장바구니 담기에 실패했습니다.");
+              }
+
+              /*setCart(true);
+            Alert.alert("게시글을 장바구니에 담았습니다!");*/
+            }, // 장바구니에 담기. api 보내는 거 추가
+          },
+          {
+            text: "아니요",
+            style: "cancel",
+          },
+        ]);
+      }
+    }
+  };
+
   const handleDislikePress = async () => {
     if (isAuthorized) {
       if (disliked) {
         Alert.alert("싫어요 취소", "싫어요를 취소하겠습니까?", [
           {
             text: "예",
-            onPress: () => {
-              // 좋아요 취소 보내기
-              /*
-              const result = await handleRemoveLikeClick(postId, post.userId);
+            onPress: async () => {
+              // 싫어요 취소 보내기
+              const result = await handleRemoveDislikeClick(postId);
               if (result) {
                 setLiked(false);
-                Alert.alert("좋아요를 취소했습니다.");
+                Alert.alert("싫어요를 취소했습니다.");
               } else {
-                Alert.alert("좋아요 취소에 실패했습니다.");
+                Alert.alert("싫어요 취소에 실패했습니다.");
               }
-              */
-              setDisliked(false);
-              Alert.alert("싫어요를 취소했습니다.");
+
+              /*setDisliked(false);
+              Alert.alert("싫어요를 취소했습니다.");*/
             }, // '예'를 누르면 좋아요 취소 + api 보내는 거 추가하기
           },
           {
@@ -134,19 +186,22 @@ export default function PayPostScreen() {
         Alert.alert("싫어요", "이 게시글에 싫어요를 누르겠습니까?", [
           {
             text: "예",
-            onPress: () => {
+            onPress: async () => {
               // 싫어요 보내기.
+              const result = await handleDislikeClick(postId);
+              if (result.success) {
+                setDisliked(true);
+                Alert.alert("싫어요를 눌렀습니다!");
+              } else if (result.reason === "alreadyDisliked") {
+                setDisliked(true);
+                Alert.alert("이미 싫어요를 누르셨습니다.");
+              } else {
+                Alert.alert("싫어요 추가에 실패했습니다.");
+              }
               /*
-            const result = await handleDislikeClick(postId);
-            if (result) {
-              setLiked(true);
-              Alert.alert("싫어요를 눌렀습니다!");
-            } else {
-              Alert.alert("싫어요 누르기에 실패했습니다.");
-            }
-            */
               setDisliked(true);
               Alert.alert("싫어요를 눌렀습니다!");
+              */
             }, // '예'를 누르면 좋아요 + api 보내는 거 추가하기
           },
           {
@@ -164,9 +219,9 @@ export default function PayPostScreen() {
         Alert.alert("좋아요 취소", "좋아요를 취소하겠습니까?", [
           {
             text: "예",
-            onPress: () => {
+            onPress: async () => {
               // 좋아요 취소 보내기
-              /*
+
               const result = await handleRemoveLikeClick(postId, post.userId);
               if (result) {
                 setLiked(false);
@@ -174,9 +229,10 @@ export default function PayPostScreen() {
               } else {
                 Alert.alert("좋아요 취소에 실패했습니다.");
               }
-              */
+              /*
               setLiked(false);
               Alert.alert("좋아요를 취소했습니다.");
+              */
             }, // '예'를 누르면 좋아요 취소 + api 보내는 거 추가하기
           },
           {
@@ -188,20 +244,20 @@ export default function PayPostScreen() {
         Alert.alert("좋아요", "이 게시글에 좋아요를 누르겠습니까?", [
           {
             text: "예",
-            onPress: () => {
+            onPress: async () => {
               // 좋아요 보내기. reactionType이 정확히 뭔지 모르겠음
-              /*
-            const reactionAt = new Date().toISOString();
-            const result = await handleLikeClick(postId, "like", reactionAt);
-            if (result) {
-              setLiked(true);
-              Alert.alert("좋아요를 눌렀습니다!");
-            } else {
-              Alert.alert("좋아요 누르기에 실패했습니다.");
-            }
-            */
-              setLiked(true);
-              Alert.alert("좋아요를 눌렀습니다!");
+              const result = await handleLikeClick(postId);
+              if (result.success) {
+                setLiked(true);
+                Alert.alert("좋아요를 눌렀습니다!");
+              } else if (result.reason === "alreadyLiked") {
+                setLiked(true);
+                Alert.alert("이미 좋아요를 눌렀습니다.");
+              } else {
+                Alert.alert("좋아요 누르기에 실패했습니다.");
+              }
+              /* setLiked(true);
+              Alert.alert("좋아요를 눌렀습니다!");*/
             }, // '예'를 누르면 좋아요 + api 보내는 거 추가하기
           },
           {
@@ -231,55 +287,40 @@ export default function PayPostScreen() {
     user_grade: "VVIP",
   };
 
+  /*
   const post = {
-    mileage: 200,
+    post_mileage: 200,
     title:
       "꿀팁 거래 게시글 예시. 제목 길어지면 어떻게 되는지 한번 확인해볼게요. 자동으로 두 줄 되는지 확인해봅시다.",
     content:
       "게시글 내용. 몇글자만 맛보기로 보여주고 나머지는 블러처리. 예를 들어서 100글자?는 보여주고 나머지는 ... 처리하다가 블러. 사진도 블러???",
     // image: [이미지가 여러 개면 리스트 형태로 갖다줄려나??],
     // file: 파일 첨부가 가능하다면 추가,
-    view: 12,
+    views: 12,
     likes: 2,
     dislikes: 0,
     author_Id: 1,
+    author_name: "유저",
+    author_grade: "VVIP",
   };
+  */
 
-  /*
-  post 변수도 state로 만들지 고민
-  useEffect(() => {
-    try{
+  const fetchData = async () => {
+    try {
       const postData = await fetchPostDetail(postId);
       setPost(postData);
 
-      const userData = await fetchUserData(postData.author_Id);
-      setUser(userData);
-
-      const response = await 게시글구매여부받아오는함수(userId, postId);
-      if(response){
-        setIsAuthorized(true);
-      } else {
-        setIsAuthorized(false);
-      }
-
-      const isLiked = await 좋아요여부받아오는함수(userId, postId);
-      if(isLiked){
-        setLiked(true);
-      } else {
-        setLiked(false);
-      }
-
-      const isCarted = awiat 장바구니에담았는지확인하는함수(userId, postId);
-      if(isCarted){
-        setCart(true);
-      } else {
-        setCart(false);
-      }
+      //const userData = await fetchUserData(postData.author_Id);
+      //setUser(userData);
     } catch (error) {
       setError(error.message);
     }
-  }, [liked, cart, post, user, isAuthorized]);
-  */
+  };
+
+  //post 변수도 state로 만들지 고민
+  /*useEffect(() => {
+    fetchData();
+  }, [liked, cart, post, user, isAuthorized]);*/
 
   return (
     <ScrollView style={styles.main}>
@@ -313,9 +354,9 @@ export default function PayPostScreen() {
               gap: 3,
             }}
           >
-            <Text style={styles.profileName}>{user.name}</Text>
+            <Text style={styles.profileName}>{post.author_name}</Text>
             <Image
-              source={getGradeImage(user.user_grade)}
+              source={getGradeImage(post.author_grade)}
               style={{ width: 15, height: 15 }}
               resizeMode="contain"
             />
@@ -323,7 +364,7 @@ export default function PayPostScreen() {
         </Pressable>
         <View style={styles.mileageContainer}>
           <Image style={styles.mileageIcon} source={mileageIcon} />
-          <Text style={styles.mileageText}>{post.mileage}</Text>
+          <Text style={styles.mileageText}>{post.post_mileage}</Text>
         </View>
       </View>
 
@@ -388,17 +429,37 @@ export default function PayPostScreen() {
 
       <View style={styles.footer}>
         {/* 장바구니에 담겠냐는 팝업 띄우고 "네"라고 대답한 경우 장바구니에 담았다는 팝업 띄우기 */}
-        <TouchableOpacity
-          style={styles.cartContainer}
-          onPress={handleCartPress}
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "center",
+            alignItems: "center",
+            gap: 5,
+          }}
         >
-          <Image style={styles.cartIcon} source={cartIcon} />
-          <Text style={styles.cartText}>장바구니</Text>
-        </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.buyContainer}
+            onPress={handleBuyPress}
+          >
+            <Image
+              style={styles.cartIcon}
+              source={buyIcon}
+              resizeMode="contain"
+            />
+            <Text style={styles.buyText}>구매하기</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.cartContainer}
+            onPress={handleCartPress}
+          >
+            <Image style={styles.cartIcon} source={cartIcon} />
+            <Text style={styles.cartText}>장바구니</Text>
+          </TouchableOpacity>
+        </View>
         <View style={styles.viewAndLike}>
           <View style={styles.footerContainer}>
             <Image style={styles.viewIcon} source={viewIcon} />
-            <Text>{post.view}</Text>
+            <Text>{post.views}</Text>
           </View>
           {/* 구매한 경우 좋아요 가능하게 할 것. 좋아요 누르겠냐는 팝업 띄우기. 이미 누른 경우 이미 눌렀다고 띄우기?? */}
           <TouchableOpacity
@@ -524,6 +585,16 @@ const styles = StyleSheet.create({
     marginHorizontal: 5,
     marginTop: 20,
   },
+  buyContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 15,
+    backgroundColor: "#000",
+    gap: 10,
+    width: 85,
+    height: 30,
+  },
   cartContainer: {
     flexDirection: "row",
     justifyContent: "center",
@@ -533,12 +604,19 @@ const styles = StyleSheet.create({
     borderColor: "#000",
     borderWidth: 1,
     gap: 10,
-    width: 100,
+    width: 85,
     height: 30,
   },
   cartIcon: {
     width: 15.2,
     height: 15.75,
+  },
+  buyText: {
+    color: "#fff",
+    fontSize: 12,
+    letterSpacing: -0.2,
+    lineHeight: 14,
+    fontWeight: "700",
   },
   cartText: {
     fontSize: 12,

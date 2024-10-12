@@ -19,7 +19,8 @@ import searchIcon from "../assets/search.png";
 import cautionIcon from "../assets/caution.png";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { FlatList } from "react-native-gesture-handler";
-import { fetchSearchResults } from "../services/api";
+import { fetchSearchResults, saveSearchKeyword } from "../services/api";
+import { formatSubCategory } from "../utils/format";
 
 export default function SearchResultScreen() {
   const route = useRoute();
@@ -85,12 +86,14 @@ export default function SearchResultScreen() {
   const renderItem = ({ item }) => (
     <TouchableOpacity
       onPress={() => {
-        // navigation.navigate("PostDeatil", { postId: item.post_id })
+        navigation.navigate("SearchPost", { postId: item.post_id });
       }}
     >
       <View style={styles.itemContainer}>
         <View style={styles.itemHeader}>
-          <Text style={styles.itemCategory}>#{item.sub_category_name}</Text>
+          <Text style={styles.itemCategory}>
+            #{formatSubCategory(item.sub_category_name)}
+          </Text>
           <Text style={styles.itemViews}>💰 {item.post_mileage}</Text>
         </View>
         <Text style={styles.itemTitle}>{item.title}</Text>
@@ -130,6 +133,8 @@ export default function SearchResultScreen() {
     } catch (error) {
       console.log("API 호출 중 오류 발생", error);
     } finally {
+      const result = await saveSearchKeyword(searchQuery);
+      if (!result) console.log("검색어 저장 실패");
       setLoading(false);
     }
   };

@@ -102,19 +102,96 @@ export const fetchUserProfile = async () => {
 };
 
 // 게시물 작성 함수
-export const createPost = async (title, content, category) => {
+export const createPost = async (
+  title,
+  content,
+  parentCategoryId,
+  subCategoryId,
+  imageUrl
+) => {
   try {
     const userId = await AsyncStorage.getItem("userId");
+    console.log("불러온 userId:", userId); // 불러온 userId를 로그로 출력
     if (!userId) throw new Error("로그인 정보가 없습니다.");
-    const response = await api.post("/api/posts", {
+
+    // 서버가 요구하는 형식에 맞게 데이터 구성
+    const postData = {
+      poster: userId, // userId를 poster로 설정
       title,
       content,
-      category,
-      user_id: userId,
-    });
+      parentCategoryId, // 서버에서 요구하는 parentCategoryId
+      subCategoryId, // 서버에서 요구하는 subCategoryId
+    };
+
+    if (imageUrl) {
+      postData.imageUrl = imageUrl; // 이미지 URL 추가
+    }
+
+    // API 요청 URL 확인을 위한 디버깅 로그
+    console.log("보내는 데이터:", postData);
+    console.log("요청 URL:", `${API_BASE_URL}/api/post/newpost`);
+
+    const response = await api.post("/api/post/newpost", postData); // 게시물 등록 요청
+
+    // 서버 응답 확인을 위한 디버깅 로그
+    console.log("서버에서 반환된 데이터:", response.data);
+
     return response.data;
   } catch (error) {
     console.error("게시물 작성 실패:", error);
+    throw error;
+  }
+};
+// 특정 카테고리의 게시물들을 가져오는 함수
+export const fetchPostsByCategory = async (category) => {
+  let url = "/api/info";
+
+  if (category === "교내") {
+    url += "/campus";
+  } else if (category === "서포터즈/동아리") {
+    url += "/external";
+  } else if (category === "자격증") {
+    url += "/certifications";
+  } else if (category === "공모전") {
+    url += "/contests";
+  }
+
+  try {
+    const response = await api.get(url); // api 인스턴스 사용
+    const posts = response.data;
+
+    // 각 게시물에 이미지 URL과 카테고리 정보를 추가
+    const updatedPosts = posts.map((post) => ({
+      ...post,
+      imageUrl: post.coverImage ? `${API_BASE_URL}/${post.coverImage}` : null, // 이미지 URL
+      category: category, // 카테고리 추가
+    }));
+
+    return updatedPosts; // 카테고리와 이미지 URL이 포함된 게시물 데이터 반환
+  } catch (error) {
+    console.error("게시물 불러오기 실패:", error);
+    throw error;
+  }
+};
+
+// 게시물 작성시, 이미지 파일 업로드 함수
+export const uploadImage = async (imageFile) => {
+  const formData = new FormData();
+  formData.append("image", {
+    uri: imageFile.uri,
+    name: imageFile.name,
+    type: imageFile.type,
+  });
+
+  try {
+    const response = await api.post("/api/post/newpost", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error("이미지 업로드 실패:", error);
     throw error;
   }
 };
@@ -151,28 +228,6 @@ export const fetchPosts = async () => {
     return response.data;
   } catch (error) {
     console.error("게시물 리스트 불러오기 실패:", error);
-    throw error;
-  }
-};
-
-// 게시물 작성시, 이미지 파일 업로드 함수
-export const uploadImage = async (imageFile) => {
-  const formData = new FormData();
-  formData.append("image", {
-    uri: imageFile.uri,
-    name: imageFile.name,
-    type: imageFile.type,
-  });
-
-  try {
-    const response = await api.post("/api/upload", formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    });
-    return response.data;
-  } catch (error) {
-    console.error("이미지 업로드 실패:", error);
     throw error;
   }
 };

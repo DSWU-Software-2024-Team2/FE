@@ -51,7 +51,7 @@ import lockIcon from "../assets/lock.png";
 import vvipIcon from "../assets/vvip.png";
 import vipIcon from "../assets/vip.png";
 import basicIcon from "../assets/basic.png";
-import { useRoute } from "@react-navigation/native";
+import { useRoute, useNavigation } from "@react-navigation/native";
 import {
   fetchPostDetail,
   fetchUserData,
@@ -74,6 +74,8 @@ export default function PayPostScreen() {
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [error, setError] = useState(null);
   const [isBuy, setIsBuy] = useState(0);
+
+  const navigation = useNavigation();
 
   const route = useRoute();
   const { postId } = route.params;

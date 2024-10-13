@@ -8,12 +8,15 @@ import {
   ActivityIndicator,
   TouchableOpacity,
 } from "react-native";
+import { useNavigation } from "@react-navigation/native";
 import { fetchMileageData } from "../services/api";
 import { formatSubCategory } from "../utils/format";
+import goBackIcon from "../assets/go_back.png";
 
 export default function MileageScreen() {
   const [list, setList] = useState([]);
   const [loading, setLoading] = useState(true);
+  const navigation = useNavigation();
 
   /*const fetchData = async () => {
     try {
@@ -103,7 +106,27 @@ export default function MileageScreen() {
 
   return (
     <View style={styles.main}>
-      <Text>마일리지 내역</Text>
+      <TouchableOpacity
+        onPress={() => {
+          navigation.goBack();
+        }}
+      >
+        <Image style={styles.goBackIcon} source={goBackIcon} />
+      </TouchableOpacity>
+      <Text
+        style={{
+          fontSize: 24,
+          letterSpacing: -0.6,
+          lineHeight: 36,
+          fontWeight: "700",
+          color: "#000",
+          textAlign: "center",
+          marginBottom: 10,
+          //marginVertical: 16,
+        }}
+      >
+        거래 내역
+      </Text>
       <FlatList
         data={list}
         renderItem={renderItem}
@@ -119,6 +142,13 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     flex: 1,
     paddingHorizontal: 20,
+  },
+  goBackIcon: {
+    width: 20,
+    height: 16,
+    //marginVertical: 22,
+    marginTop: 30,
+    marginBottom: 10,
   },
   itemContainer: {
     backgroundColor: "#FFFFFF",

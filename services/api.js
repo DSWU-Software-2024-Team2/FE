@@ -1,4 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import axios from "axios";
 
 const API_BASE_URL = "http://172.18.37.130:3000";
 const userId = 0;
@@ -33,6 +34,148 @@ export async function login(email, password) {
     console.error("Error logging in:", error);
   }
 }
+
+///////////////////////////
+
+// Axios 인스턴스를 생성하여 기본 설정을 할 수 있습니다.
+const api = axios.create({
+  baseURL: API_BASE_URL,
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
+
+// 요청 시 토큰을 자동으로 헤더에 추가하는 설정
+api.interceptors.request.use(
+  async (config) => {
+    const token = await AsyncStorage.getItem("userToken");
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
+// 회원가입 함수
+export const register = async (email, password, nickname) => {
+  try {
+    const response = await api.post("/api/register", {
+      email,
+      password,
+      nickname,
+    });
+    return response.data;
+  } catch (error) {
+    console.error("회원가입 실패:", error);
+    throw error;
+  }
+};
+
+// 로그아웃 함수: 토큰 및 사용자 ID 제거
+export const logout = async () => {
+  try {
+    await AsyncStorage.removeItem("userToken");
+    await AsyncStorage.removeItem("userId");
+    return true;
+  } catch (error) {
+    console.error("로그아웃 실패:", error);
+    throw error;
+  }
+};
+
+// 유저 프로필 정보를 불러오는 함수
+export const fetchUserProfile = async () => {
+  try {
+    //const userId = await AsyncStorage.getItem("userId");
+    //if (!userId) throw new Error("로그인 정보가 없습니다.");
+    const response = await api.get(`/api/userInfo?userId=1`);
+    return response.data;
+  } catch (error) {
+    console.error("유저 프로필 불러오기 실패:", error);
+    throw error;
+  }
+};
+
+// 게시물 작성 함수
+export const createPost = async (title, content, category) => {
+  try {
+    const userId = await AsyncStorage.getItem("userId");
+    if (!userId) throw new Error("로그인 정보가 없습니다.");
+    const response = await api.post("/api/posts", {
+      title,
+      content,
+      category,
+      user_id: userId,
+    });
+    return response.data;
+  } catch (error) {
+    console.error("게시물 작성 실패:", error);
+    throw error;
+  }
+};
+
+// 게시물 삭제 함수
+export const deletePost = async (postId) => {
+  try {
+    const response = await api.delete(`/api/posts/${postId}`);
+    return response.data;
+  } catch (error) {
+    console.error("게시물 삭제 실패:", error);
+    throw error;
+  }
+};
+
+// 게시물 수정 함수
+export const updatePost = async (postId, title, content) => {
+  try {
+    const response = await api.put(`/api/posts/${postId}`, {
+      title,
+      content,
+    });
+    return response.data;
+  } catch (error) {
+    console.error("게시물 수정 실패:", error);
+    throw error;
+  }
+};
+
+// 게시물 리스트를 불러오는 함수 (모든 게시물)
+export const fetchPosts = async () => {
+  try {
+    const response = await api.get("/api/posts");
+    return response.data;
+  } catch (error) {
+    console.error("게시물 리스트 불러오기 실패:", error);
+    throw error;
+  }
+};
+
+// 게시물 작성시, 이미지 파일 업로드 함수
+export const uploadImage = async (imageFile) => {
+  const formData = new FormData();
+  formData.append("image", {
+    uri: imageFile.uri,
+    name: imageFile.name,
+    type: imageFile.type,
+  });
+
+  try {
+    const response = await api.post("/api/upload", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error("이미지 업로드 실패:", error);
+    throw error;
+  }
+};
+
+//////////////////////
 
 // 인기글 받아오는 함수
 export async function fetchHotPosts() {

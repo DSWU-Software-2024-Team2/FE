@@ -6,19 +6,29 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
-  ScrollView,
+  Alert,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import * as ImagePicker from "expo-image-picker"; // 사진 첨부를 위한 라이브러리
-import * as DocumentPicker from "expo-document-picker"; // 파일 첨부를 위한 라이브러리
+import * as ImagePicker from "expo-image-picker";
+import * as DocumentPicker from "expo-document-picker";
+import { createPost, uploadImage } from "../services/api"; // 게시물 작성 API와 이미지 업로드 API 함수
+import AsyncStorage from "@react-native-async-storage/async-storage"; // 추가
 
 export default function WritePostScreen({ navigation }) {
   const [selectedCategory, setSelectedCategory] = useState("카테고리");
   const [showCategoryOptions, setShowCategoryOptions] = useState(false);
   const [title, setTitle] = useState("");
-  const [content, setContent] = useState(""); // 본문 입력 필드 추가
+  const [content, setContent] = useState("");
+  const [image, setImage] = useState(null); // 선택한 이미지 상태
+  const [document, setDocument] = useState(null); // 선택한 파일 상태
 
-  const categories = ["교내", "서포터즈/동아리", "자격증", "공모전", "채용"];
+  const categories = [
+    { name: "교내", parentCategoryId: 2, subCategoryId: 1 },
+    { name: "서포터즈/동아리", parentCategoryId: 2, subCategoryId: 2 },
+    { name: "자격증", parentCategoryId: 2, subCategoryId: 3 },
+    { name: "공모전", parentCategoryId: 2, subCategoryId: 4 },
+    { name: "채용", parentCategoryId: 2, subCategoryId: 5 },
+  ];
 
   const toggleCategoryOptions = () => {
     setShowCategoryOptions(!showCategoryOptions);
@@ -29,9 +39,52 @@ export default function WritePostScreen({ navigation }) {
     setShowCategoryOptions(false);
   };
 
-  const submitPost = () => {
-    alert("게시물이 등록되었습니다.");
-    navigation.goBack();
+  // 게시물 등록 함수 (백엔드로 전송)
+  const submitPost = async () => {
+    if (!title || !content || selectedCategory === "카테고리") {
+      Alert.alert("입력 오류", "모든 필드를 입력해주세요.");
+      return;
+    }
+
+    try {
+      let imageUrl = null;
+
+      // 선택된 이미지가 있을 경우 이미지 업로드
+      if (image) {
+        const uploadedImage = await uploadImage({ uri: image });
+        imageUrl = uploadedImage.imageUrl; // 서버로부터 반환된 이미지 URL 사용
+      }
+
+      // AsyncStorage에서 userId 가져오기
+      const userId = await AsyncStorage.getItem("userId");
+      if (!userId) {
+        Alert.alert(
+          "로그인 오류",
+          "사용자 정보를 가져올 수 없습니다. 다시 로그인 해주세요."
+        );
+        return;
+      }
+
+      // 게시물 생성 API 호출
+      const response = await createPost(
+        title,
+        content,
+        selectedCategory.parentCategoryId, // parentCategoryId 전달
+        selectedCategory.subCategoryId, // subCategoryId 전달
+        userId, // userId 전달
+        imageUrl // 이미지 URL 전달
+      );
+
+      console.log("게시물 등록 응답:", response); // 서버에서 반환된 응답을 콘솔에 출력
+
+      if (response) {
+        Alert.alert("성공", "게시물이 등록되었습니다.");
+        navigation.goBack();
+      }
+    } catch (error) {
+      console.error("게시물 등록 실패:", error);
+      Alert.alert("오류", "게시물 등록 중 오류가 발생했습니다.");
+    }
   };
 
   // 사진 선택 함수
@@ -44,7 +97,7 @@ export default function WritePostScreen({ navigation }) {
     });
 
     if (!result.canceled) {
-      console.log(result.uri);
+      setImage(result.uri);
       alert("사진이 선택되었습니다.");
     }
   };
@@ -53,7 +106,7 @@ export default function WritePostScreen({ navigation }) {
   const pickDocument = async () => {
     let result = await DocumentPicker.getDocumentAsync({});
     if (result.type === "success") {
-      console.log(result.uri);
+      setDocument(result.uri);
       alert("파일이 선택되었습니다.");
     }
   };
@@ -65,7 +118,9 @@ export default function WritePostScreen({ navigation }) {
           style={styles.categoryButton}
           onPress={toggleCategoryOptions}
         >
-          <Text style={styles.categoryText}>{selectedCategory}</Text>
+          <Text style={styles.categoryText}>
+            {selectedCategory.name || "카테고리"}
+          </Text>
           <Ionicons
             name={showCategoryOptions ? "chevron-up" : "chevron-down"}
             size={20}
@@ -81,11 +136,11 @@ export default function WritePostScreen({ navigation }) {
         <View style={styles.categoryOptions}>
           {categories.map((category) => (
             <TouchableOpacity
-              key={category}
+              key={category.name}
               style={styles.categoryOption}
               onPress={() => selectCategory(category)}
             >
-              <Text>{category}</Text>
+              <Text>{category.name}</Text>
             </TouchableOpacity>
           ))}
         </View>
@@ -99,13 +154,13 @@ export default function WritePostScreen({ navigation }) {
         onChangeText={setTitle}
       />
 
-      {/* 본문 입력 추가 */}
+      {/* 본문 입력 */}
       <TextInput
         style={styles.contentInput}
         placeholder="본문을 입력해주세요."
         value={content}
         onChangeText={setContent}
-        multiline={true} // 여러 줄 입력 가능
+        multiline={true}
       />
 
       {/* 하단 아이콘 */}
@@ -189,12 +244,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
     borderWidth: 1,
     borderColor: "#DDDDDD",
-    minHeight: 100, // 최소 높이 설정 (본문을 위한 입력칸)
-    textAlignVertical: "top", // 텍스트가 위에서부터 입력되도록 설정
+    minHeight: 100,
+    textAlignVertical: "top",
   },
   footer: {
     position: "absolute",
-    bottom: 20, // 화면 하단에 고정
+    bottom: 20,
     left: 20,
     right: 20,
     flexDirection: "row",

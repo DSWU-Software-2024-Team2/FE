@@ -97,6 +97,11 @@ export default function CartScreen() {
     (total, item) => total + item.post_mileage,
     0
   );*/
+
+  const handleRefresh = () => {
+    fetchData(); // 새로고침 시 장바구니 목록 업데이트
+  };
+
   const handleCheckBoxClick = async (itemId) => {
     try {
       const response = await handleCartToggle(itemId);
@@ -316,35 +321,56 @@ export default function CartScreen() {
     <View style={{ flex: 1, backgroundColor: "fff" }}>
       <View style={styles.main}>
         <Text style={styles.title}>장바구니</Text>
-        <View style={{ flexDirection: "row", gap: 10, marginBottom: 10 }}>
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "space-between",
+            marginBottom: 10,
+          }}
+        >
+          <View style={{ flexDirection: "row", gap: 10 }}>
+            <TouchableOpacity
+              style={{
+                borderRadius: 15,
+                backgroundColor: "#000",
+                width: 80,
+                height: 30,
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+              onPress={handleDeleteAllClick}
+            >
+              <Text style={{ color: "#fff" }}>전체 삭제</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={{
+                borderRadius: 15,
+                borderStyle: "solid",
+                borderColor: "#000",
+                borderWidth: 1,
+                //backgroundColor: "#fff",
+                width: 80,
+                height: 30,
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+              onPress={handleDeleteClick}
+            >
+              <Text style={{ color: "#000" }}>선택 삭제</Text>
+            </TouchableOpacity>
+          </View>
           <TouchableOpacity
             style={{
               borderRadius: 15,
-              backgroundColor: "#000",
+              backgroundColor: "#007bff", // 새로고침 버튼 색상
               width: 80,
               height: 30,
               justifyContent: "center",
               alignItems: "center",
             }}
-            onPress={handleDeleteAllClick}
+            onPress={handleRefresh}
           >
-            <Text style={{ color: "#fff" }}>전체 삭제</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={{
-              borderRadius: 15,
-              borderStyle: "solid",
-              borderColor: "#000",
-              borderWidth: 1,
-              //backgroundColor: "#fff",
-              width: 80,
-              height: 30,
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-            onPress={handleDeleteClick}
-          >
-            <Text style={{ color: "#000" }}>선택 삭제</Text>
+            <Text style={{ color: "#fff" }}>새로고침</Text>
           </TouchableOpacity>
         </View>
 
@@ -371,7 +397,10 @@ export default function CartScreen() {
         )}
       </View>
 
-      <TouchableOpacity style={styles.payContainer} onPress={handlePayClick}>
+      <TouchableOpacity
+        style={styles.payContainer}
+        onPress={cartLists.length === 0 ? () => {} : handlePayClick}
+      >
         <Text style={styles.payText}>{totalMileage} 마일리지 결제하기</Text>
       </TouchableOpacity>
     </View>

@@ -16,6 +16,8 @@ import bellIcon from "../assets/bell.png";
 import infoIcon from "../assets/target.png";
 import tipIcon from "../assets/atom.png";
 import communityIcon from "../assets/comment.png";
+import info1Img from "../assets/info1.jpg";
+import info2Img from "../assets/info2.jpg";
 import { fetchHotPosts } from "../services/api";
 
 export default function HomeScreen() {
@@ -100,6 +102,16 @@ export default function HomeScreen() {
         showsHorizontalScrollIndicator={false} // 가로 스크롤바 숨기기
         style={styles.scrollView}
       >
+        <Image
+          style={styles.recommendItemLayout}
+          source={info1Img}
+          resizeMode="cover"
+        />
+        <Image
+          style={styles.recommendItemLayout}
+          source={info2Img}
+          resizeMode="cover"
+        />
         <View style={[styles.recommendItemLayout]} />
         <View style={[styles.recommendItemLayout]} />
         <View style={[styles.recommendItemLayout]} />

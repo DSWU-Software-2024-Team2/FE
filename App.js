@@ -7,9 +7,19 @@ import { createStackNavigator } from "@react-navigation/stack";
 import PayPostScreen from "./screens/PayPostScreen";
 import CartScreen from "./screens/CartScreen";
 import SearchScreen from "./screens/SearchScreen";
+import RootNavigator from "./navigation/RootNavigator";
 
 const Stack = createStackNavigator();
 
+export default function App() {
+  return (
+    <NavigationContainer>
+      <RootNavigator />
+    </NavigationContainer>
+  );
+}
+
+/*
 export default function App() {
   return (
     <NavigationContainer>
@@ -20,6 +30,7 @@ export default function App() {
     </NavigationContainer>
   );
 }
+*/
 
 /*
 export default function App() {

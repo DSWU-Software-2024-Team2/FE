@@ -10,6 +10,8 @@ import SearchResultScreen from "../screens/SearchResultScreen";
 import SearchScreen from "../screens/SearchScreen";
 import CartScreen from "../screens/CartScreen";
 import PayPostScreen from "../screens/PayPostScreen";
+import ProfileScreen from "../screens/ProfileScreen";
+import MileageScreen from "../screens/MileageScreen";
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -44,6 +46,15 @@ function CartStack() {
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="CartMain" component={CartScreen} />
       <Stack.Screen name="CartPost" component={PayPostScreen} />
+    </Stack.Navigator>
+  );
+}
+
+function ProfileStack() {
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="ProfileMain" component={ProfileScreen} />
+      <Stack.Screen name="Mileage" component={MileageScreen} />
     </Stack.Navigator>
   );
 }
@@ -90,7 +101,7 @@ export default function MainTabNavigator() {
       />
       <Tab.Screen
         name="Profile"
-        component={HomeScreen}
+        component={ProfileStack}
         options={{ tabBarLabel: "내 정보" }}
       />
     </Tab.Navigator>

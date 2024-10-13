@@ -34,6 +34,7 @@ import {
   Text,
   Pressable,
   Alert,
+  Modal,
 } from "react-native";
 import { BlurView } from "expo-blur"; // 블러 처리를 위한 라이브러리
 import goBackIcon from "../assets/go_back.png";
@@ -72,13 +73,16 @@ export default function PayPostScreen() {
   //const [user, setUser] = useState(null);
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [error, setError] = useState(null);
+  const [isBuy, setIsBuy] = useState(0);
 
   const route = useRoute();
   const { postId } = route.params;
 
   const handleBuyPress = () => {
-    if (isAuthorized) {
+    if (post.message === "무료") {
       Alert.alert("이미 구매한 게시글입니다!");
+    } else if (post.message === "자기") {
+      Alert.alert("자신의 글은 구매할 수 없습니다!");
     } else {
       Alert.alert("구매하기", "해당 글을 구매하시겠습니까?", [
         {
@@ -102,6 +106,7 @@ export default function PayPostScreen() {
                 Alert.alert("결제 실패", "알 수 없는 오류가 발생했습니다.");
               }
             } else {
+              setIsBuy(isBuy + 1);
               Alert.alert(
                 "결제 성공",
                 `결제가 완료되었습니다! 남은 마일리지: ${result}`
@@ -121,8 +126,10 @@ export default function PayPostScreen() {
   };
 
   const handleCartPress = () => {
-    if (isAuthorized) {
+    if (post.message === "무료") {
       Alert.alert("이미 구매한 게시글입니다!");
+    } else if (post.message === "자기") {
+      Alert.alert("자신의 글은 장바구니에 담을 수 없습니다!");
     } else {
       if (cart) {
         Alert.alert("이미 장바구니에 담은 글입니다!"); // 여유되면 장바구니 삭제 api 연결하기?
@@ -158,7 +165,7 @@ export default function PayPostScreen() {
   };
 
   const handleDislikePress = async () => {
-    if (isAuthorized) {
+    if (post.message === "구매") {
       if (disliked) {
         Alert.alert("싫어요 취소", "싫어요를 취소하겠습니까?", [
           {
@@ -182,6 +189,8 @@ export default function PayPostScreen() {
             style: "cancel",
           },
         ]);
+      } else if (post.message === "자기") {
+        Alert.alert("자신의 글에 싫어요를 누를 수 없습니다!");
       } else {
         Alert.alert("싫어요", "이 게시글에 싫어요를 누르겠습니까?", [
           {
@@ -214,7 +223,7 @@ export default function PayPostScreen() {
   };
 
   const handleLikePress = async () => {
-    if (isAuthorized) {
+    if (post.message === "구매") {
       if (liked) {
         Alert.alert("좋아요 취소", "좋아요를 취소하겠습니까?", [
           {
@@ -240,6 +249,8 @@ export default function PayPostScreen() {
             style: "cancel",
           },
         ]);
+      } else if (post.message === "자기") {
+        Alert.alert("자신의 글에 좋아요를 누를 수 없습니다!");
       } else {
         Alert.alert("좋아요", "이 게시글에 좋아요를 누르겠습니까?", [
           {
@@ -305,8 +316,9 @@ export default function PayPostScreen() {
   };
   */
 
-  const fetchData = async () => {
+  /* const fetchData = async () => {
     try {
+      console.log("데이터 받아오는 중");
       const postData = await fetchPostDetail(postId);
       setPost(postData);
 
@@ -316,173 +328,198 @@ export default function PayPostScreen() {
       setError(error.message);
     }
   };
+*/
 
   //post 변수도 state로 만들지 고민
-  /*useEffect(() => {
+  useEffect(() => {
+    const fetchData = async () => {
+      console.log("fetchData called"); // fetchData가 호출되는지 확인
+      try {
+        const postData = await fetchPostDetail(postId);
+        console.log("Fetched post data:", postData); // API 요청 결과를 로그로 확인
+        /*if (postData.message === "유료") {
+          setIsAuthorized(false);
+        } else setIsAuthorized(true);*/
+        setPost(postData);
+      } catch (error) {
+        console.error("Error fetching post detail:", error); // 에러가 발생했는지 확인
+        setError(error.message);
+      }
+    };
+
     fetchData();
-  }, [liked, cart, post, user, isAuthorized]);*/
+  }, [postId, liked, cart, isAuthorized, isBuy]);
 
   return (
-    <ScrollView style={styles.main}>
-      <TouchableOpacity
-        onPress={() => {
-          navigation.goBack();
-        }}
-      >
-        <Image style={styles.goBackIcon} source={goBackIcon} />
-      </TouchableOpacity>
-
-      <View style={styles.lineView} />
-
-      <View style={styles.header}>
-        <Pressable
-          style={styles.profileContainer}
-          onPress={() => {
-            // 작성자 프로필로 이동
-          }}
-        >
-          <Image
-            style={styles.profileImg}
-            source={user.profileImg}
-            resizeMode="cover"
-          />
-          <View
-            style={{
-              flexDirection: "row",
-              justifyContent: "center",
-              alignItems: "center",
-              gap: 3,
+    <>
+      {post ? (
+        <ScrollView style={styles.main}>
+          <TouchableOpacity
+            onPress={() => {
+              navigation.goBack();
             }}
           >
-            <Text style={styles.profileName}>{post.author_name}</Text>
-            <Image
-              source={getGradeImage(post.author_grade)}
-              style={{ width: 15, height: 15 }}
-              resizeMode="contain"
-            />
-          </View>
-        </Pressable>
-        <View style={styles.mileageContainer}>
-          <Image style={styles.mileageIcon} source={mileageIcon} />
-          <Text style={styles.mileageText}>{post.post_mileage}</Text>
-        </View>
-      </View>
+            <Image style={styles.goBackIcon} source={goBackIcon} />
+          </TouchableOpacity>
 
-      <Text style={styles.postTitle}>{post.title}</Text>
-      {/* 구매 전이면 게시글 내용 한 줄만 미리보기로 보여주기 */}
-      {isAuthorized || (
-        <Text style={styles.postContentPreview} numberOfLines={1}>
-          {post.content}
-        </Text>
-      )}
-      <View style={styles.contentContainer}>
-        <Text style={styles.postContent}>{post.content}</Text>
+          <View style={styles.lineView} />
 
-        {/* 이미지가 있다면 */}
-        <ScrollView
-          horizontal={true} // 가로 스크롤 활성화. 근데 블러 처리된 경우 가로 스크롤이 안됨.
-          showsHorizontalScrollIndicator={false} // 가로 스크롤바 숨기기
-          style={styles.scrollView}
-        >
-          {/* <Image style={styles.imageLayout} source={{uri: post.imageUrl}} resizeMode="cover" /> */}
-          <Image
-            style={styles.imageLayout}
-            source={{
-              uri: "https://images.unsplash.com/photo-1507146426996-ef05306b995a?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-            }}
-            resizeMode="cover"
-          />
-          <View style={[styles.imageLayout]} />
-          <View style={[styles.imageLayout]} />
-          <View style={[styles.imageLayout]} />
-          <View style={[styles.imageLayout]} />
-          <View style={[styles.imageLayout]} />
-        </ScrollView>
-        {isAuthorized || (
-          <BlurView
-            intensity={25}
-            tint="light"
-            experimentalBlurMethod="dimezisBlurView"
-            style={{
-              position: "absolute",
-              width: "100%",
-              height: "100%",
-              justifyContent: "center",
-              alignItems: "center",
-              gap: 10,
-            }}
-          >
-            <Image style={{ width: 40, height: 40 }} source={lockIcon} />
-            <Text
-              style={{
-                width: "70%",
-                fontSize: 19,
-                textAlign: "center",
-                fontWeight: "700",
+          <View style={styles.header}>
+            <Pressable
+              style={styles.profileContainer}
+              onPress={() => {
+                // 작성자 프로필로 이동
               }}
             >
-              게시글을 구매하여 전체 내용을 확인하세요!
-            </Text>
-          </BlurView>
-        )}
-      </View>
-
-      <View style={styles.footer}>
-        {/* 장바구니에 담겠냐는 팝업 띄우고 "네"라고 대답한 경우 장바구니에 담았다는 팝업 띄우기 */}
-        <View
-          style={{
-            flexDirection: "row",
-            justifyContent: "center",
-            alignItems: "center",
-            gap: 5,
-          }}
-        >
-          <TouchableOpacity
-            style={styles.buyContainer}
-            onPress={handleBuyPress}
-          >
-            <Image
-              style={styles.cartIcon}
-              source={buyIcon}
-              resizeMode="contain"
-            />
-            <Text style={styles.buyText}>구매하기</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.cartContainer}
-            onPress={handleCartPress}
-          >
-            <Image style={styles.cartIcon} source={cartIcon} />
-            <Text style={styles.cartText}>장바구니</Text>
-          </TouchableOpacity>
-        </View>
-        <View style={styles.viewAndLike}>
-          <View style={styles.footerContainer}>
-            <Image style={styles.viewIcon} source={viewIcon} />
-            <Text>{post.views}</Text>
+              <Image
+                style={styles.profileImg}
+                source={{ uri: post.author_profile_picture }}
+                resizeMode="cover"
+              />
+              <View
+                style={{
+                  flexDirection: "row",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  gap: 3,
+                }}
+              >
+                <Text style={styles.profileName}>{post.author_nickname}</Text>
+                <Image
+                  source={getGradeImage(post.author_grade)}
+                  style={{ width: 15, height: 15 }}
+                  resizeMode="contain"
+                />
+              </View>
+            </Pressable>
+            <View style={styles.mileageContainer}>
+              <Image style={styles.mileageIcon} source={mileageIcon} />
+              <Text style={styles.mileageText}>{post.post_mileage}</Text>
+            </View>
           </View>
-          {/* 구매한 경우 좋아요 가능하게 할 것. 좋아요 누르겠냐는 팝업 띄우기. 이미 누른 경우 이미 눌렀다고 띄우기?? */}
-          <TouchableOpacity
-            style={styles.footerContainer}
-            onPress={handleLikePress}
-          >
-            <Image style={styles.likeIcon} source={likeIcon} />
-            <Text>{post.likes}</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.footerContainer}
-            onPress={handleDislikePress}
-          >
-            <Image style={styles.likeIcon} source={dislikeIcon} />
-            <Text>{post.dislikes}</Text>
-          </TouchableOpacity>
+
+          <Text style={styles.postTitle}>{post.title}</Text>
+          {/* 구매 전이면 게시글 내용 한 줄만 미리보기로 보여주기 */}
+          {post.message === "유료" && (
+            <Text style={styles.postContentPreview} numberOfLines={1}>
+              {post.content}
+            </Text>
+          )}
+          <View style={styles.contentContainer}>
+            <Text style={styles.postContent}>{post.content}</Text>
+
+            {/* 이미지가 있다면 */}
+            <ScrollView
+              horizontal={true} // 가로 스크롤 활성화. 근데 블러 처리된 경우 가로 스크롤이 안됨.
+              showsHorizontalScrollIndicator={false} // 가로 스크롤바 숨기기
+              style={styles.scrollView}
+            >
+              {post.images.map((item) => (
+                <Image
+                  style={styles.imageLayout}
+                  source={{ uri: item }}
+                  resizeMode="cover"
+                />
+              ))}
+            </ScrollView>
+            {post.message === "유료" && (
+              <BlurView
+                intensity={25}
+                tint="light"
+                experimentalBlurMethod="dimezisBlurView"
+                style={{
+                  position: "absolute",
+                  width: "100%",
+                  height: "100%",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  gap: 10,
+                }}
+              >
+                <Image style={{ width: 40, height: 40 }} source={lockIcon} />
+                <Text
+                  style={{
+                    width: "70%",
+                    fontSize: 19,
+                    textAlign: "center",
+                    fontWeight: "700",
+                  }}
+                >
+                  게시글을 구매하여 전체 내용을 확인하세요!
+                </Text>
+              </BlurView>
+            )}
+          </View>
+
+          <View style={styles.footer}>
+            {/* 장바구니에 담겠냐는 팝업 띄우고 "네"라고 대답한 경우 장바구니에 담았다는 팝업 띄우기 */}
+            <View
+              style={{
+                flexDirection: "row",
+                justifyContent: "center",
+                alignItems: "center",
+                gap: 5,
+              }}
+            >
+              <TouchableOpacity
+                style={styles.buyContainer}
+                onPress={handleBuyPress}
+              >
+                <Image
+                  style={styles.cartIcon}
+                  source={buyIcon}
+                  resizeMode="contain"
+                />
+                <Text style={styles.buyText}>구매하기</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.cartContainer}
+                onPress={handleCartPress}
+              >
+                <Image style={styles.cartIcon} source={cartIcon} />
+                <Text style={styles.cartText}>장바구니</Text>
+              </TouchableOpacity>
+            </View>
+            <View style={styles.viewAndLike}>
+              <View style={styles.footerContainer}>
+                <Image style={styles.viewIcon} source={viewIcon} />
+                <Text>{post.views}</Text>
+              </View>
+              {/* 구매한 경우 좋아요 가능하게 할 것. 좋아요 누르겠냐는 팝업 띄우기. 이미 누른 경우 이미 눌렀다고 띄우기?? */}
+              <TouchableOpacity
+                style={styles.footerContainer}
+                onPress={handleLikePress}
+              >
+                <Image style={styles.likeIcon} source={likeIcon} />
+                <Text>{post.likes}</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.footerContainer}
+                onPress={handleDislikePress}
+              >
+                <Image style={styles.likeIcon} source={dislikeIcon} />
+                <Text>{post.dislikes}</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </ScrollView>
+      ) : (
+        <View style={styles.loadingContainer}>
+          <Text>Loading...</Text>
         </View>
-      </View>
-    </ScrollView>
+      )}
+    </>
   );
 }
 
 const styles = StyleSheet.create({
+  loadingContainer: {
+    flex: 1, // 전체 공간을 차지하도록 설정
+    justifyContent: "center", // 수직 중앙 정렬
+    alignItems: "center", // 수평 중앙 정렬
+    backgroundColor: "#f9f9f9", // 배경색
+    padding: 20, // 내부 여백
+  },
   main: {
     backgroundColor: "#fff",
     flex: 1,

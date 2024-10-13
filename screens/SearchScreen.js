@@ -46,9 +46,6 @@ export default function SearchScreen() {
       return;
     }
 
-    const result = await saveSearchKeyword(searchQuery);
-    if (!result) console.log("검색어 저장 실패");
-
     // 검색 API 호출 및 결과 화면으로 이동.
     navigation.navigate("SearchResult", {
       mainCategory: selectedCategory,

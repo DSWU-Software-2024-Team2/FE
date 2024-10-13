@@ -8,19 +8,34 @@ import {
   TouchableOpacity,
   ActivityIndicator,
 } from "react-native";
-// import { fetchUserProfile } from "../services/api"; // API 함수 임시 주석 처리
+import vvipIcon from "../assets/vvip.png";
+import vipIcon from "../assets/vip.png";
+import basicIcon from "../assets/basic.png";
+import { fetchUserProfile } from "../services/api"; // API 함수 임시 주석 처리
 
 export default function ProfileScreen({ navigation }) {
   const [userProfile, setUserProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const getGradeImage = (grade) => {
+    switch (grade) {
+      case "VVIP":
+        return vvipIcon; // VIP 등급 이미지
+      case "VIP":
+        return vipIcon; // Gold 등급 이미지
+      case "BASIC":
+        return basicIcon; // Silver 등급 이미지
+    }
+  };
+
   // API 연동 부분 주석 처리
   const fetchData = async () => {
     try {
       setLoading(true);
-      // const response = await fetchUserProfile(); // API 호출 주석 처리
-      // setUserProfile(response);
+      const response = await fetchUserProfile(); // API 호출 주석 처리
+      setUserProfile(response);
+      console.log(response);
 
       // 임시로 테스트할 사용자 정보
       const tempUserProfile = {
@@ -31,7 +46,7 @@ export default function ProfileScreen({ navigation }) {
         totalMileage: 5000,
       };
 
-      setUserProfile(tempUserProfile);
+      //setUserProfile(tempUserProfile);
       setLoading(false);
     } catch (err) {
       setError(err.message);
@@ -68,7 +83,7 @@ export default function ProfileScreen({ navigation }) {
         <View style={styles.profileHeader}>
           <View style={styles.vipContainer}>
             <Image
-              source={require("../assets/bee.png")}
+              source={getGradeImage(userProfile?.membershipLevel)}
               style={styles.beeIcon}
             />
             <Text style={styles.vipText}>{userProfile?.membershipLevel}</Text>
@@ -102,7 +117,10 @@ export default function ProfileScreen({ navigation }) {
       </View>
 
       <View style={styles.section}>
-        <TouchableOpacity style={styles.sectionItem}>
+        <TouchableOpacity
+          style={styles.sectionItem}
+          onPress={() => navigation.navigate("Mileage")}
+        >
           <Image
             source={require("../assets/mileage.png")}
             style={styles.sectionIcon}

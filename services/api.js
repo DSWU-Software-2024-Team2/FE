@@ -1,7 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 
-const API_BASE_URL = "http://172.18.37.130:3000";
+const API_BASE_URL = "http://172.18.38.29:3000";
 const userId = 0;
 
 // 로그인 함수
@@ -22,7 +22,9 @@ export async function login(email, password) {
       await AsyncStorage.setItem("userToken", data.token);
 
       // 추가로 사용자 정보도 저장할 수 있어
-      await AsyncStorage.setItem("userId", JSON.stringify(userId));
+      //await AsyncStorage.setItem("userId", JSON.stringify(userId));
+      await AsyncStorage.setItem("userId", JSON.stringify(data.user.id));
+      console.log(data.user.id);
 
       return true;
     } else {
@@ -89,9 +91,9 @@ export const logout = async () => {
 // 유저 프로필 정보를 불러오는 함수
 export const fetchUserProfile = async () => {
   try {
-    //const userId = await AsyncStorage.getItem("userId");
-    //if (!userId) throw new Error("로그인 정보가 없습니다.");
-    const response = await api.get(`/api/userInfo?userId=1`);
+    const userId = await AsyncStorage.getItem("userId");
+    if (!userId) throw new Error("로그인 정보가 없습니다.");
+    const response = await api.get(`/api/userInfo?userId=${userId}`);
     return response.data;
   } catch (error) {
     console.error("유저 프로필 불러오기 실패:", error);
@@ -177,6 +179,29 @@ export const uploadImage = async (imageFile) => {
 
 //////////////////////
 
+// 마일리지 내역
+export async function fetchMileageData() {
+  try {
+    const userId = await AsyncStorage.getItem("userId");
+    const response = await fetch(
+      `${API_BASE_URL}/api/userInfo/transactions?userId=${userId}`
+    );
+    if (!response.ok) {
+      // 응답이 실패한 경우
+      const errorData = await response.json();
+      throw new Error(
+        errorData.message || "거래 내역을 불러오는 중 에러가 발생했습니다."
+      );
+    }
+
+    const transactions = await response.json(); // 응답 데이터 파싱
+    console.log("거래 내역:", transactions); // 거래 내역 출력
+    return transactions;
+  } catch (error) {
+    console.error("Error:", error.message);
+  }
+}
+
 // 인기글 받아오는 함수
 export async function fetchHotPosts() {
   const response = await fetch(`${API_BASE_URL}/api/posts/popular`);
@@ -216,19 +241,21 @@ export async function fetchSearchResults(
 
 // 검색어 저장 함수
 // 검색어는 같고 카테고리는 다른 경우에도 저장하게 할 건지??
-export async function saveSearchKeyword(keyword) {
-  // const userId = await AsyncStorage.getItem("userId");
+export async function saveSearchKeyword(searchKeyword) {
+  const userId = await AsyncStorage.getItem("userId");
+  console.log(userId);
   const response = await fetch(`${API_BASE_URL}/api/search/keyword`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ user_id: userId, keyword: keyword }),
+    body: JSON.stringify({ user_id: userId, keyword: searchKeyword }),
   });
 
   const data = await response.json();
 
   if (!response.ok) {
+    console.error("Error:", data.error);
     return false;
   }
 
@@ -239,10 +266,12 @@ export async function saveSearchKeyword(keyword) {
 // 문제!!! 게시글 구매 안 한 경우 구매 후 이용 가능하다는 메세지만 도착함. 메세지랑 함께 게시글 정보를 같이 줘야 함.
 // 게시글 구매 여부를 같이 보내줬으면 좋겠음
 export async function fetchPostDetail(postId) {
-  // const userId = await AsyncStorage.getItem("userId");
+  const userId = await AsyncStorage.getItem("userId");
   try {
-    //console.log("api호출");
-    const response = await fetch(`${API_BASE_URL}/api/posts/${postId}`);
+    console.log("api호출");
+    const response = await fetch(
+      `${API_BASE_URL}/api/post/getpost/${postId}?userId=${userId}`
+    );
     if (!response.ok) {
       throw new Eror("error!");
     }
@@ -264,21 +293,37 @@ export async function buyDirect(postId) {
   const userId = await AsyncStorage.getItem("userId");
   try {
     const response = await fetch(
-      `${API_BASE_URL}/api/payment/direct?userId=${userId}&postId=${postId}`
+      `${API_BASE_URL}/api/payment/direct?userId=${userId}&postId=${postId}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
     );
+
+    // 상태 코드가 200이 아닐 경우 처리
+    if (!response.ok) {
+      const errorText = await response.text(); // 에러 응답 확인
+      console.error("Error response:", errorText);
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
 
     const result = await response.json();
 
-    if (response.ok) {
+    if (result.status === "success") {
       console.log("결제 성공");
       return result.remainingMileage;
-    } else if (result.status === "fail") {
-      if (result.message === "이미 존재하는 거래 기록입니다.") {
-        return { success: false, reason: "alreadyBuy" };
-      } else if (result.message === "잔액이 부족합니다.") {
-        return { success: false, reason: "noMileage" };
-      } else {
-        return { success: false, reason: "otherError" };
+    } else {
+      // 기존의 실패 처리 로직
+      if (result.status === "fail") {
+        if (result.message === "이미 존재하는 거래 기록입니다.") {
+          return { success: false, reason: "alreadyBuy" };
+        } else if (result.message === "잔액이 부족합니다.") {
+          return { success: false, reason: "noMileage" };
+        } else {
+          return { success: false, reason: "otherError" };
+        }
       }
     }
   } catch (error) {
@@ -318,14 +363,17 @@ export async function handleCartClick(postId) {
 // 장바구니 목록 받아오는 함수
 export async function fetchCartLists() {
   try {
-    //const userId = await AsyncStorage.getItem("userId");
-    const response = await fetch(`${API_BASE_URL}/api/cart/items?userId=2`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      //body: JSON.stringify({ userId: 2 }),
-    });
+    const userId = await AsyncStorage.getItem("userId");
+    const response = await fetch(
+      `${API_BASE_URL}/api/cart/items?userId=${userId}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        //body: JSON.stringify({ userId: 2 }),
+      }
+    );
 
     const data = await response.json();
     if (response.ok) {
@@ -343,7 +391,7 @@ export async function fetchCartLists() {
 
 // 장바구니 전체 삭제
 export async function clearCart() {
-  // const userId = await AsyncStorage.getItem("userId");
+  const userId = await AsyncStorage.getItem("userId");
   const response = await fetch(
     `${API_BASE_URL}/api/cart/items/clear?userId=${userId}`,
     {
@@ -364,8 +412,8 @@ export async function clearCart() {
 }
 
 // 장바구니 선택 삭제
-export async function deleteActiveCartItems(userId) {
-  // const userId = await AsyncStorage.getItem("userId");
+export async function deleteActiveCartItems() {
+  const userId = await AsyncStorage.getItem("userId");
   const response = await fetch(
     `${API_BASE_URL}/api/cart/items?userId=${userId}`,
     {
@@ -387,11 +435,11 @@ export async function deleteActiveCartItems(userId) {
 
 // 장바구니 아이템 토글
 export async function handleCartToggle(itemId) {
-  // const userId = await AsyncStorage.getItem("userId");
+  const userId = await AsyncStorage.getItem("userId");
 
   try {
     const response = await fetch(
-      `${API_BASE_URL}/api/cart/items/toggle?userId=2&itemId=${itemId}`,
+      `${API_BASE_URL}/api/cart/items/toggle?userId=${userId}&itemId=${itemId}`,
       {
         method: "PATCH",
         headers: {
@@ -413,16 +461,19 @@ export async function handleCartToggle(itemId) {
 
 // 좋아요 보내기 함수
 export async function handleLikeClick(postId) {
-  // const userId = await AsyncStorage.getItem("userId");
+  const userId = await AsyncStorage.getItem("userId");
 
   try {
     // fetch를 이용해 POST 요청 보내기
-    const response = await fetch(`${API_BASE_URL}/api/post/${postId}/like`, {
-      method: "POST", // POST 요청
-      headers: {
-        "Content-Type": "application/json", // 요청의 내용 형식을 JSON으로 지정
-      },
-    });
+    const response = await fetch(
+      `${API_BASE_URL}/api/react/${postId}/like?userId=${userId}`,
+      {
+        method: "POST", // POST 요청
+        headers: {
+          "Content-Type": "application/json", // 요청의 내용 형식을 JSON으로 지정
+        },
+      }
+    );
 
     const data = await response.json();
 
@@ -446,15 +497,18 @@ export async function handleLikeClick(postId) {
 
 // 좋아요 취소 함수
 export async function handleRemoveLikeClick(postId) {
-  // const userId = await AsyncStorage.getItem("userId");
+  const userId = await AsyncStorage.getItem("userId");
 
   try {
-    const response = await fetch(`${API_BASE_URL}/api/post/${postId}/like`, {
-      method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+    const response = await fetch(
+      `${API_BASE_URL}/api/react/${postId}/like?userId=${userId}`,
+      {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
 
     if (!response.ok) {
       //throw new Error("Failed to remove like");
@@ -479,13 +533,16 @@ export async function handleDislikeClick(postId) {
     }
 
     // API 호출
-    const response = await fetch(`${API_BASE_URL}/api/post/${postId}/dislike`, {
-      method: "POST", // POST 또는 PUT 요청
-      headers: {
-        "Content-Type": "application/json",
-      },
-      //body: JSON.stringify({ userId }), // 만약 필요한 경우 userId를 전달할 수 있습니다.
-    });
+    const response = await fetch(
+      `${API_BASE_URL}/api/react/${postId}/dislike?userId=${userId}`,
+      {
+        method: "POST", // POST 또는 PUT 요청
+        headers: {
+          "Content-Type": "application/json",
+        },
+        //body: JSON.stringify({ userId }), // 만약 필요한 경우 userId를 전달할 수 있습니다.
+      }
+    );
 
     const data = await response.json();
 
@@ -509,15 +566,18 @@ export async function handleDislikeClick(postId) {
 
 // 싫어요 삭제
 export async function handleRemoveDislikeClick(postId) {
-  //const userId = await AsyncStorage.getItem("userId");
+  const userId = await AsyncStorage.getItem("userId");
 
   try {
-    const response = await fetch(`${API_BASE_URL}/api/post/${postId}/dislike`, {
-      method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+    const response = await fetch(
+      `${API_BASE_URL}/api/react/${postId}/dislike?userId=${userId}`,
+      {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
 
     if (!response.ok) {
       //throw new Error("Failed to remove like");
@@ -543,12 +603,15 @@ export async function requestPayment() {
     }
 
     // API 호출
-    const response = await fetch(`${API_BASE_URL}/api/payment?userId=2`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+    const response = await fetch(
+      `${API_BASE_URL}/api/payment?userId=${userId}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
 
     const data = await response.json();
 

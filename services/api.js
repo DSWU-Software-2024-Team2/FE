@@ -1,7 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 
-const API_BASE_URL = "http://172.18.38.29:3000";
+const API_BASE_URL = "http://172.20.9.165:3000";
 const userId = 0;
 
 // 로그인 함수

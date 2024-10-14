@@ -18,6 +18,7 @@ import tipIcon from "../assets/atom.png";
 import communityIcon from "../assets/comment.png";
 import info1Img from "../assets/info1.jpg";
 import info2Img from "../assets/info2.jpg";
+import info3Img from "../assets/info3.jpg";
 import { fetchHotPosts } from "../services/api";
 
 export default function HomeScreen() {
@@ -50,13 +51,6 @@ export default function HomeScreen() {
           <Image style={styles.logoIcon} source={logoIcon} />
           <Text style={[styles.logo]}>HoneyWeb</Text>
         </View>
-        <TouchableOpacity
-          onPress={() => {
-            //navigation.navigate(알림페이지);
-          }}
-        >
-          <Image style={styles.bellIcon} resizeMode="cover" source={bellIcon} />
-        </TouchableOpacity>
       </View>
       <View style={styles.lineView} />
 
@@ -64,7 +58,7 @@ export default function HomeScreen() {
         <TouchableOpacity
           style={[styles.categoryLayout]}
           onPress={() => {
-            //navigation.navigate("정보");
+            navigation.navigate("InfoMain");
           }}
         >
           <Image style={styles.infoIcon} resizeMode="cover" source={infoIcon} />
@@ -112,15 +106,16 @@ export default function HomeScreen() {
           source={info2Img}
           resizeMode="cover"
         />
-        <View style={[styles.recommendItemLayout]} />
-        <View style={[styles.recommendItemLayout]} />
-        <View style={[styles.recommendItemLayout]} />
-        <View style={[styles.recommendItemLayout]} />
-        <View style={[styles.recommendItemLayout]} />
+        <Image
+          style={styles.recommendItemLayout}
+          source={info3Img}
+          resizeMode="cover"
+        />
       </ScrollView>
       <Text style={[styles.hotPostText, styles.textTypo1]}>인기글</Text>
       {hotPostItems.map((item, index) => (
         <Text
+          key={index}
           style={styles.postNameText}
           onPress={() => {
             //navigation.navigate(해당게시글로이동);
@@ -236,8 +231,8 @@ const styles = StyleSheet.create({
   recommendItemLayout: {
     backgroundColor: "#d9d9d9",
     borderRadius: 20,
-    height: 76,
-    width: 126,
+    height: 300,
+    width: 300,
     marginLeft: 17,
     marginBottom: 30,
   },

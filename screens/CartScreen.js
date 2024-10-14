@@ -24,6 +24,7 @@ import {
   TextInput,
   Alert,
   FlatList,
+  ActivityIndicator,
 } from "react-native";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import uncheckIcon from "../assets/uncheck.png";
@@ -45,6 +46,7 @@ export default function CartScreen() {
   const [isDeleted, setIsDeleted] = useState(false);
   const [totalMileage, setTotalMileage] = useState();
   const [loading, setLoading] = useState(false);
+  const navigation = useNavigation();
 
   // api 연결 전까지 사용
   /*
@@ -362,7 +364,7 @@ export default function CartScreen() {
           <TouchableOpacity
             style={{
               borderRadius: 15,
-              backgroundColor: "#007bff", // 새로고침 버튼 색상
+              backgroundColor: "#ecae52", // 새로고침 버튼 색상
               width: 80,
               height: 30,
               justifyContent: "center",

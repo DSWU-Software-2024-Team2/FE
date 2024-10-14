@@ -1,10 +1,10 @@
 //은영
 import React from "react";
-import { View, Text, Image, StyleSheet } from "react-native";
+import { ScrollView, View, Text, Image, StyleSheet } from "react-native";
 
 export default function InformationScreen() {
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container}>
       <Text style={styles.title}>등급제도란?</Text>
       <Text style={styles.description}>
         인증된 경력에 따라 하단의 3등급으로 나뉘는 제도
@@ -41,9 +41,61 @@ export default function InformationScreen() {
         </View>
       </View>
 
+      <Text style={styles.title}>가격정책</Text>
+      <Text style={styles.description}>
+        등급에 따라 게시글의 기본 가격이 다르며, 구매자의 평가에 따라 가격이
+        변동됩니다.
+      </Text>
+
+      <View style={styles.rankContainer}>
+        <View style={styles.rankItem}>
+          <Image
+            source={require("../assets/bee.png")}
+            style={styles.rankIcon}
+          />
+          <Text style={styles.rankText}>VVIP</Text>
+          <Text style={styles.rankDescription}>2000 마일리지</Text>
+        </View>
+
+        <View style={styles.rankItem}>
+          <Image
+            source={require("../assets/vip_bee.png")}
+            style={styles.rankIcon}
+          />
+          <Text style={styles.rankText}>VIP</Text>
+          <Text style={styles.rankDescription}>1000 마일리지</Text>
+        </View>
+
+        <View style={styles.rankItem}>
+          <Image
+            source={require("../assets/basic_bee.png")}
+            style={styles.rankIcon}
+          />
+          <Text style={styles.rankText}>BASIC</Text>
+          <Text style={styles.rankDescription}>500 마일리지</Text>
+        </View>
+
+        <View style={styles.rankItem}>
+          <Image
+            source={require("../assets/like.png")}
+            style={styles.rankIcon}
+          />
+          <Text style={styles.rankText}>좋아요</Text>
+          <Text style={styles.rankDescription}>하나당 +100</Text>
+        </View>
+        <View style={styles.rankItem}>
+          <Image
+            source={require("../assets/xdislike.png")}
+            style={styles.rankIcon}
+          />
+          <Text style={styles.rankText}>싫어요</Text>
+          <Text style={styles.rankDescription}>하나당 -100</Text>
+        </View>
+      </View>
+
       <Text style={styles.title}>평가제도란?</Text>
       <Text style={styles.description}>
-        사용자가 서로를 평가하여 좋은 커뮤니티 형성?
+        사용자가 서로를 평가하여 좋은 커뮤니티 형성
       </Text>
 
       <View style={styles.rankContainer}>
@@ -71,7 +123,7 @@ export default function InformationScreen() {
           <Text style={styles.rankText}>bad manner</Text>
         </View>
       </View>
-    </View>
+    </ScrollView>
   );
 }
 

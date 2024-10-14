@@ -47,6 +47,8 @@ import cartIcon from "../assets/cart.png";
 import viewIcon from "../assets/view.png";
 import likeIcon from "../assets/like.png";
 import dislikeIcon from "../assets/dislike.png";
+import xdislikeIcon from "../assets/xdislike.png";
+import xlikeIcon from "../assets/xlike.png";
 import lockIcon from "../assets/lock.png";
 import vvipIcon from "../assets/vvip.png";
 import vipIcon from "../assets/vip.png";
@@ -74,11 +76,26 @@ export default function PayPostScreen() {
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [error, setError] = useState(null);
   const [isBuy, setIsBuy] = useState(0);
+  const [isImageModalVisible, setIsImageModalVisible] = useState(false);
+  const [currentImage, setCurrentImage] = useState(null);
 
   const navigation = useNavigation();
 
   const route = useRoute();
   const { postId } = route.params;
+
+  const handleRefresh = () => {
+    fetchData(); // 새로고침 시 장바구니 목록 업데이트
+  };
+
+  const handleImagePress = (image) => {
+    setCurrentImage(image);
+    setIsImageModalVisible(true);
+  };
+
+  const handleBackgroundPress = () => {
+    setIsImageModalVisible(false);
+  };
 
   const handleBuyPress = () => {
     if (post.message === "무료") {
@@ -332,23 +349,23 @@ export default function PayPostScreen() {
   };
 */
 
+  const fetchData = async () => {
+    console.log("fetchData called"); // fetchData가 호출되는지 확인
+    try {
+      const postData = await fetchPostDetail(postId);
+      console.log("Fetched post data:", postData); // API 요청 결과를 로그로 확인
+      /*if (postData.message === "유료") {
+      setIsAuthorized(false);
+    } else setIsAuthorized(true);*/
+      setPost(postData);
+    } catch (error) {
+      console.error("Error fetching post detail:", error); // 에러가 발생했는지 확인
+      setError(error.message);
+    }
+  };
+
   //post 변수도 state로 만들지 고민
   useEffect(() => {
-    const fetchData = async () => {
-      console.log("fetchData called"); // fetchData가 호출되는지 확인
-      try {
-        const postData = await fetchPostDetail(postId);
-        console.log("Fetched post data:", postData); // API 요청 결과를 로그로 확인
-        /*if (postData.message === "유료") {
-          setIsAuthorized(false);
-        } else setIsAuthorized(true);*/
-        setPost(postData);
-      } catch (error) {
-        console.error("Error fetching post detail:", error); // 에러가 발생했는지 확인
-        setError(error.message);
-      }
-    };
-
     fetchData();
   }, [postId, liked, cart, isAuthorized, isBuy]);
 
@@ -356,13 +373,36 @@ export default function PayPostScreen() {
     <>
       {post ? (
         <ScrollView style={styles.main}>
-          <TouchableOpacity
-            onPress={() => {
-              navigation.goBack();
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "space-between",
+              alignItems: "center",
             }}
           >
-            <Image style={styles.goBackIcon} source={goBackIcon} />
-          </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => {
+                navigation.goBack();
+              }}
+            >
+              <Image style={styles.goBackIcon} source={goBackIcon} />
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={{
+                borderRadius: 15,
+                backgroundColor: "#ecae52", // 새로고침 버튼 색상
+                width: 80,
+                height: 30,
+                justifyContent: "center",
+                alignItems: "center",
+                marginTop: 30,
+                marginBottom: 22,
+              }}
+              onPress={handleRefresh}
+            >
+              <Text style={{ color: "#fff" }}>새로고침</Text>
+            </TouchableOpacity>
+          </View>
 
           <View style={styles.lineView} />
 
@@ -416,17 +456,38 @@ export default function PayPostScreen() {
               showsHorizontalScrollIndicator={false} // 가로 스크롤바 숨기기
               style={styles.scrollView}
             >
-              {post.images.map((item) => (
-                <Image
-                  style={styles.imageLayout}
-                  source={{ uri: item }}
-                  resizeMode="cover"
-                />
+              {post.images.map((item, index) => (
+                <TouchableOpacity onPress={() => handleImagePress(item)}>
+                  <Image
+                    key={index}
+                    style={styles.imageLayout}
+                    source={{ uri: item }}
+                    resizeMode="cover"
+                  />
+                </TouchableOpacity>
               ))}
             </ScrollView>
+            <Modal
+              transparent={true}
+              visible={isImageModalVisible}
+              onRequestClose={handleBackgroundPress}
+            >
+              <TouchableOpacity
+                style={styles.modalBackground}
+                onPress={handleBackgroundPress}
+              >
+                <BlurView intensity={50} style={styles.blurView}>
+                  <Image
+                    source={{ uri: currentImage }}
+                    style={styles.largeImage}
+                    resizeMode="contain"
+                  />
+                </BlurView>
+              </TouchableOpacity>
+            </Modal>
             {post.message === "유료" && (
               <BlurView
-                intensity={25}
+                intensity={12}
                 tint="light"
                 experimentalBlurMethod="dimezisBlurView"
                 style={{
@@ -492,14 +553,20 @@ export default function PayPostScreen() {
                 style={styles.footerContainer}
                 onPress={handleLikePress}
               >
-                <Image style={styles.likeIcon} source={likeIcon} />
+                <Image
+                  style={styles.likeIcon}
+                  source={liked ? likeIcon : xlikeIcon}
+                />
                 <Text>{post.likes}</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.footerContainer}
                 onPress={handleDislikePress}
               >
-                <Image style={styles.likeIcon} source={dislikeIcon} />
+                <Image
+                  style={styles.likeIcon}
+                  source={disliked ? dislikeIcon : xdislikeIcon}
+                />
                 <Text>{post.dislikes}</Text>
               </TouchableOpacity>
             </View>
@@ -515,6 +582,23 @@ export default function PayPostScreen() {
 }
 
 const styles = StyleSheet.create({
+  modalBackground: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.8)", // 배경을 어둡게 반투명하게 만듦
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  blurView: {
+    width: "100%",
+    height: "100%",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  largeImage: {
+    width: "90%",
+    height: "90%",
+    borderRadius: 8,
+  },
   loadingContainer: {
     flex: 1, // 전체 공간을 차지하도록 설정
     justifyContent: "center", // 수직 중앙 정렬

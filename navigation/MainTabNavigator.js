@@ -42,13 +42,23 @@ function SearchStack() {
   );
 }
 
+function CartStack() {
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="CartMain" component={CartScreen} />
+      <Stack.Screen name="CartPost" component={PayPostScreen} />
+    </Stack.Navigator>
+  );
+}
+
 // ProfileStack에 InformationScreen 추가
 function ProfileStack() {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="Profile" component={ProfileScreen} />
+      <Stack.Screen name="ProfileMain" component={ProfileScreen} />
       <Stack.Screen name="Mileage" component={MileageScreen} />
       <Stack.Screen name="Information" component={InformationScreen} />
+      <Stack.Screen name="TransactionPost" component={PayPostScreen} />
     </Stack.Navigator>
   );
 }
@@ -88,7 +98,7 @@ export default function MainTabNavigator() {
       />
       <Tab.Screen
         name="Cart"
-        component={CartScreen}
+        component={CartStack}
         options={{ tabBarLabel: "장바구니" }}
       />
       <Tab.Screen

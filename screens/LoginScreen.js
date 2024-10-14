@@ -23,6 +23,7 @@ export default function LoginScreen() {
   const navigation = useNavigation();
 
   const handleLogin = async () => {
+    console.log("로그인 시도");
     const response = await login(email, password);
 
     if (response) {

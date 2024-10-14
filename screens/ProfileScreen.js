@@ -85,6 +85,7 @@ export default function ProfileScreen({ navigation }) {
             <Image
               source={getGradeImage(userProfile?.membershipLevel)}
               style={styles.beeIcon}
+              resizeMode="contain"
             />
             <Text style={styles.vipText}>{userProfile?.membershipLevel}</Text>
           </View>
@@ -109,6 +110,7 @@ export default function ProfileScreen({ navigation }) {
               <Image
                 source={require("../assets/honey_mileage.png")}
                 style={styles.mileageIcon}
+                resizeMode="contain"
               />
               <Text style={styles.mileage}>{userProfile?.totalMileage}</Text>
             </View>
@@ -124,6 +126,7 @@ export default function ProfileScreen({ navigation }) {
           <Image
             source={require("../assets/mileage.png")}
             style={styles.sectionIcon}
+            resizeMode="contain"
           />
           <Text style={styles.sectionText}>마일리지 내역</Text>
         </TouchableOpacity>
@@ -132,6 +135,7 @@ export default function ProfileScreen({ navigation }) {
           <Image
             source={require("../assets/check.png")}
             style={styles.sectionIcon}
+            resizeMode="contain"
           />
           <Text style={styles.sectionText}>내가 쓴 글</Text>
         </TouchableOpacity>
@@ -140,6 +144,7 @@ export default function ProfileScreen({ navigation }) {
           <Image
             source={require("../assets/comment.png")}
             style={styles.sectionIcon}
+            resizeMode="contain"
           />
           <Text style={styles.sectionText}>댓글 단 글</Text>
         </TouchableOpacity>

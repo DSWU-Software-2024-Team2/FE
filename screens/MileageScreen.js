@@ -53,7 +53,7 @@ export default function MileageScreen() {
   const renderItem = ({ item }) => (
     <TouchableOpacity
       onPress={() => {
-        //navigation.navigate("SearchPost", { postId: item.post_id });
+        navigation.navigate("TransactionPost", { postId: item.post_id });
       }}
     >
       <View style={styles.itemContainer}>

@@ -24,12 +24,13 @@ function HoneyTipStack() {
       <Stack.Screen name="Home" component={HomeScreen} />
       <Stack.Screen name="InfoMain" component={InfoScreen} />
       <Stack.Screen name="HoneyTip" component={HoneyTipScreen} />
+      <Stack.Screen name="HoneyTipPost" component={PayPostScreen} />
+      <Stack.Screen name="Community" component={CommunityScreen} />
       <Stack.Screen
         name="WritePost"
         component={WritePostScreen}
         options={{ title: "게시물 작성" }}
       />
-      <Stack.Screen name="Community" component={CommunityScreen} />
     </Stack.Navigator>
   );
 }

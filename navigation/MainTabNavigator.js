@@ -13,6 +13,7 @@ import InformationScreen from "../screens/InformationScreen";
 import InfoScreen from "../screens/InfoScreen";
 import PayPostScreen from "../screens/PayPostScreen";
 import MileageScreen from "../screens/MileageScreen";
+import CommunityScreen from "../screens/CommunityScreen";
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -47,6 +48,14 @@ function CartStack() {
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="CartMain" component={CartScreen} />
       <Stack.Screen name="CartPost" component={PayPostScreen} />
+    </Stack.Navigator>
+  );
+}
+
+function CommunityStack() {
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="CommunityMain" component={CommunityScreen} />
     </Stack.Navigator>
   );
 }

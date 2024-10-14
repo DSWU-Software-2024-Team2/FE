@@ -1,4 +1,3 @@
-//은영
 import React, { useState, useEffect } from "react";
 import {
   View,
@@ -35,19 +34,18 @@ export default function CommunityScreen() {
   // 게시물 렌더링 함수
   const renderItem = ({ item }) => (
     <View style={styles.postContainer}>
-      <Text style={styles.titleText}>제목: {item.title}</Text>
-      <Text style={styles.contentText}>내용: {item.content}</Text>
-      <Text style={styles.mileageText}>마일리지: {item.post_mileage}</Text>
-      <Text style={styles.likesText}>좋아요: {item.likes_count}</Text>
-      <Text style={styles.authorText}>작성자: {item.author_nickname}</Text>
-      <Text style={styles.subCategoryText}>
-        서브 카테고리: {item.sub_category_name}
-      </Text>
+      <Text style={styles.titleText}>{item.title}</Text>
+      <Text style={styles.contentText}>{item.content}</Text>
+      <View style={styles.postFooter}>
+        <Text style={styles.likesText}>❤️ {item.likes_count}</Text>
+        <Text style={styles.authorText}>작성자: {item.author_nickname}</Text>
+      </View>
     </View>
   );
 
   return (
     <View style={styles.container}>
+      <Text style={styles.headerTitle}>커뮤니티</Text>
       {loading ? ( // 로딩 중일 때 로딩 스피너 표시
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#0000ff" />
@@ -70,6 +68,14 @@ const styles = StyleSheet.create({
     backgroundColor: "#F0F0F0",
     padding: 10,
   },
+  headerTitle: {
+    fontSize: 24,
+    fontWeight: "bold",
+    textAlign: "left",
+    marginTop: 20,
+    marginBottom: 20,
+    color: "#000",
+  },
   postContainer: {
     backgroundColor: "#FFFFFF",
     padding: 15,
@@ -81,30 +87,40 @@ const styles = StyleSheet.create({
     shadowRadius: 2,
     elevation: 3,
   },
+  postHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 5,
+  },
+  categoryText: {
+    fontSize: 12,
+    color: "#007AFF",
+    fontWeight: "bold",
+  },
+  mileageText: {
+    fontSize: 12,
+    color: "#AAAAAA",
+  },
   titleText: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: "bold",
     marginBottom: 5,
   },
   contentText: {
     fontSize: 14,
     marginBottom: 5,
+    color: "#333333",
   },
-  mileageText: {
-    fontSize: 12,
-    marginBottom: 5,
-    color: "#888",
+  postFooter: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
   likesText: {
     fontSize: 12,
-    marginBottom: 5,
     color: "#888",
   },
   authorText: {
-    fontSize: 12,
-    color: "#555",
-  },
-  subCategoryText: {
     fontSize: 12,
     color: "#555",
   },

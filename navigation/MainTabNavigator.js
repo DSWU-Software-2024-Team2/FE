@@ -1,4 +1,3 @@
-// Navigation/MainTabNavigator.js
 import React from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createStackNavigator } from "@react-navigation/stack";
@@ -9,8 +8,10 @@ import WritePostScreen from "../screens/WritePostScreen";
 import SearchResultScreen from "../screens/SearchResultScreen";
 import SearchScreen from "../screens/SearchScreen";
 import CartScreen from "../screens/CartScreen";
-import PayPostScreen from "../screens/PayPostScreen";
 import ProfileScreen from "../screens/ProfileScreen";
+import InformationScreen from "../screens/InformationScreen";
+import InfoScreen from "../screens/InfoScreen";
+import PayPostScreen from "../screens/PayPostScreen";
 import MileageScreen from "../screens/MileageScreen";
 
 const Tab = createBottomTabNavigator();
@@ -19,14 +20,14 @@ const Stack = createStackNavigator();
 function HoneyTipStack() {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="HomeMain" component={HomeScreen} />
+      <Stack.Screen name="Home" component={HomeScreen} />
+      <Stack.Screen name="InfoMain" component={InfoScreen} />
       <Stack.Screen name="HoneyTip" component={HoneyTipScreen} />
       <Stack.Screen
         name="WritePost"
         component={WritePostScreen}
         options={{ title: "게시물 작성" }}
       />
-      <Stack.Screen name="HoneyTipPost" component={PayPostScreen} />
     </Stack.Navigator>
   );
 }
@@ -41,20 +42,13 @@ function SearchStack() {
   );
 }
 
-function CartStack() {
-  return (
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="CartMain" component={CartScreen} />
-      <Stack.Screen name="CartPost" component={PayPostScreen} />
-    </Stack.Navigator>
-  );
-}
-
+// ProfileStack에 InformationScreen 추가
 function ProfileStack() {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="ProfileMain" component={ProfileScreen} />
+      <Stack.Screen name="Profile" component={ProfileScreen} />
       <Stack.Screen name="Mileage" component={MileageScreen} />
+      <Stack.Screen name="Information" component={InformationScreen} />
     </Stack.Navigator>
   );
 }
@@ -65,12 +59,10 @@ export default function MainTabNavigator() {
       screenOptions={({ route }) => ({
         tabBarIcon: ({ focused, color, size }) => {
           let iconName;
-          if (route.name === "Home") {
+          if (route.name === "HoneyTipHome") {
             iconName = focused ? "home" : "home-outline";
           } else if (route.name === "Search") {
             iconName = focused ? "search" : "search-outline";
-          } else if (route.name === "Chat") {
-            iconName = focused ? "chatbubble" : "chatbubble-outline";
           } else if (route.name === "Cart") {
             iconName = focused ? "cart" : "cart-outline";
           } else if (route.name === "Profile") {
@@ -85,7 +77,7 @@ export default function MainTabNavigator() {
       })}
     >
       <Tab.Screen
-        name="Home"
+        name="HoneyTipHome"
         component={HoneyTipStack}
         options={{ tabBarLabel: "홈" }}
       />
@@ -96,7 +88,7 @@ export default function MainTabNavigator() {
       />
       <Tab.Screen
         name="Cart"
-        component={CartStack}
+        component={CartScreen}
         options={{ tabBarLabel: "장바구니" }}
       />
       <Tab.Screen

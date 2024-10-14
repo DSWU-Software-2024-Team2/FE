@@ -33,7 +33,6 @@ export default function HoneyTipScreen({ navigation, route }) {
       // 서버에 맞는 카테고리 ID로 변환
       let categoryId = null;
 
-      // 카테고리별 post_id 매핑
       if (category === "교내") {
         categoryId = 1;
       } else if (category === "서포터즈/동아리") {
@@ -46,7 +45,7 @@ export default function HoneyTipScreen({ navigation, route }) {
         categoryId = 5;
       }
 
-      console.log("Requesting posts for categoryId:", categoryId); // 디버깅 로그 추가
+      console.log("Requesting posts for categoryId:", categoryId);
 
       if (category === "전체") {
         const allPosts = await fetchHoneyTipPosts();
@@ -63,20 +62,20 @@ export default function HoneyTipScreen({ navigation, route }) {
   };
 
   useEffect(() => {
-    loadPosts(selectedCategory); // 컴포넌트 마운트 시 게시물 불러오기
+    loadPosts(selectedCategory);
   }, [selectedCategory]);
 
-  // 게시물 클릭 시 상세 보기로 이동
-  const handlePostPress = (post) => {
-    navigation.navigate("PostDetail", { post });
+  const handleRefresh = () => {
+    loadPosts(selectedCategory);
   };
 
-  // 새 글 작성 후 돌아왔을 때 posts에 추가하기
+  const handlePostPress = (post) => {
+    navigation.navigate("HoneyTipPost", { postId: post.post_id });
+  };
+
   useEffect(() => {
     if (route?.params?.newPost) {
       const newPost = route.params.newPost;
-
-      // 선택한 카테고리와 새로 작성한 게시물의 카테고리 비교
       if (
         selectedCategory === "전체" ||
         selectedCategory === newPost.sub_category_name
@@ -117,7 +116,6 @@ export default function HoneyTipScreen({ navigation, route }) {
           </Text>
         </View>
         <Text style={styles.itemTitle}>{item.title || "제목 없음"}</Text>
-        {/* 내용의 길이를 30자로 제한하고, 더 길 경우 "..."으로 표시 */}
         <Text style={styles.itemContent}>
           {item.content.length > 30
             ? `${item.content.substring(0, 30)}...`
@@ -139,14 +137,23 @@ export default function HoneyTipScreen({ navigation, route }) {
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.headerTitle}>꿀팁 거래</Text>
-        <FlatList
-          data={categories}
-          renderItem={renderCategory}
-          keyExtractor={(item) => item}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.categoryList}
-        />
+
+        <View style={styles.headerRight}>
+          <FlatList
+            data={categories}
+            renderItem={renderCategory}
+            keyExtractor={(item) => item}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.categoryList}
+          />
+          <TouchableOpacity
+            style={styles.refreshButton}
+            onPress={handleRefresh}
+          >
+            <Text style={styles.refreshButtonText}>새로고침</Text>
+          </TouchableOpacity>
+        </View>
       </View>
       {loading ? (
         <Text>로딩 중...</Text>
@@ -178,6 +185,11 @@ const styles = StyleSheet.create({
     borderBottomColor: "#DDDDDD",
   },
   headerTitle: { fontSize: 24, fontWeight: "bold", marginBottom: 10 },
+  headerRight: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
   categoryList: { paddingHorizontal: 5, justifyContent: "space-evenly" },
   categoryButton: {
     paddingVertical: 8,
@@ -216,6 +228,17 @@ const styles = StyleSheet.create({
   },
   itemLikes: { fontSize: 12, color: "#AAAAAA" },
   itemAuthor: { fontSize: 12, color: "#AAAAAA" },
+  refreshButton: {
+    backgroundColor: "#ecae52",
+    borderRadius: 15,
+    width: 80,
+    height: 30,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  refreshButtonText: {
+    color: "#fff",
+  },
   floatingButton: {
     position: "absolute",
     bottom: 20,

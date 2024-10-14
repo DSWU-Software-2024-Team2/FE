@@ -13,19 +13,12 @@ import {
 import { fetchPostsByCategory } from "../services/api"; // API 호출 함수
 
 export default function InfoScreen({ navigation }) {
-  const [selectedCategory, setSelectedCategory] = useState("전체");
+  const [selectedCategory, setSelectedCategory] = useState(null); // 기본값을 null로 설정
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(false); // 로딩 상태 추가
 
   // 카테고리 목록
-  const categories = [
-    "전체",
-    "교내",
-    "서포터즈/동아리",
-    "자격증",
-    "공모전",
-    "채용",
-  ];
+  const categories = ["교내", "서포터즈/동아리", "자격증", "공모전", "채용"];
 
   // 카테고리가 변경될 때마다 해당 카테고리 게시물 불러오기 또는 채용 페이지 열기
   useEffect(() => {
@@ -37,6 +30,10 @@ export default function InfoScreen({ navigation }) {
           console.error("Failed to open page", err)
         );
         return;
+      }
+
+      if (!selectedCategory) {
+        return; // 카테고리가 선택되지 않았을 경우 아무 것도 하지 않음
       }
 
       setLoading(true); // 로딩 시작
@@ -52,6 +49,39 @@ export default function InfoScreen({ navigation }) {
 
     loadPosts();
   }, [selectedCategory]);
+
+  // 자격증 카테고리인 경우 데이터를 다르게 렌더링
+  const renderItem = ({ item }) => {
+    if (selectedCategory === "자격증") {
+      // 자격증 게시물의 경우
+      return (
+        <View style={styles.itemContainer}>
+          <Text style={styles.licenseTitle}>자격증: {item.license}</Text>
+          <Text style={styles.organization}>
+            발급 기관: {item.organization}
+          </Text>
+        </View>
+      );
+    } else {
+      // 그 외의 카테고리 게시물 처리
+      return (
+        <View style={styles.itemContainer}>
+          <View style={styles.itemHeader}>
+            <Text style={styles.itemCategory}>#{item.category}</Text>
+          </View>
+          {/* 이미지 추가 */}
+          <Image
+            source={{ uri: item.coverImage }} // 백엔드에서 이미지 URL을 가져와 표시
+            style={styles.itemImage}
+          />
+          <Text style={styles.itemTitle}>{item.title}</Text>
+          <View style={styles.itemFooter}>
+            <Text style={styles.itemComments}>❤️ {item.comments}</Text>
+          </View>
+        </View>
+      );
+    }
+  };
 
   // 카테고리 렌더링
   const renderCategory = ({ item }) => (
@@ -71,24 +101,6 @@ export default function InfoScreen({ navigation }) {
         {item}
       </Text>
     </TouchableOpacity>
-  );
-
-  // 게시물 렌더링
-  const renderItem = ({ item }) => (
-    <View style={styles.itemContainer}>
-      <View style={styles.itemHeader}>
-        <Text style={styles.itemCategory}>#{item.category}</Text>
-      </View>
-      {/* 이미지 추가 */}
-      <Image
-        source={{ uri: item.coverImage }} // 백엔드에서 이미지 URL을 가져와 표시
-        style={styles.itemImage}
-      />
-      <Text style={styles.itemTitle}>{item.title}</Text>
-      <View style={styles.itemFooter}>
-        <Text style={styles.itemComments}>❤️ {item.comments}</Text>
-      </View>
-    </View>
   );
 
   return (
@@ -118,13 +130,6 @@ export default function InfoScreen({ navigation }) {
           showsVerticalScrollIndicator={true} // 스크롤 활성화
         />
       )}
-
-      <TouchableOpacity
-        style={styles.floatingButton}
-        onPress={() => navigation.navigate("WritePost")}
-      >
-        <Text style={styles.floatingButtonText}>+</Text>
-      </TouchableOpacity>
     </View>
   );
 }
@@ -243,5 +248,14 @@ const styles = StyleSheet.create({
     height: 150, // 높이 설정
     resizeMode: "cover", // 이미지가 컨테이너에 맞게 크기를 조정하도록 설정
     marginBottom: 10,
+  },
+  licenseTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 5,
+  },
+  organization: {
+    fontSize: 14,
+    color: "#555555",
   },
 });

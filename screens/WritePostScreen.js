@@ -79,7 +79,10 @@ export default function WritePostScreen({ navigation }) {
 
       if (response) {
         Alert.alert("성공", "게시물이 등록되었습니다.");
-        navigation.goBack();
+        navigation.navigate("HoneyTip", {
+          newPost: response, // 게시물 작성 후 새 게시물 정보를 전달
+          category: selectedCategory.name, // 카테고리 정보 전달
+        });
       }
     } catch (error) {
       console.error("게시물 등록 실패:", error);

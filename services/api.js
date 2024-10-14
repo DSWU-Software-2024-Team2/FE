@@ -142,6 +142,55 @@ export const createPost = async (
     throw error;
   }
 };
+
+// 꿀팁 거래 게시판 관련 API 함수
+
+// 모든 게시물 불러오기 함수 (꿀팁 거래 게시판)
+export const fetchHoneyTipPosts = async () => {
+  try {
+    const response = await api.get("/api/tips");
+    return response.data;
+  } catch (error) {
+    console.error("Failed to fetch HoneyTip posts:", error);
+    throw error;
+  }
+};
+
+// 카테고리별 게시물 불러오기 함수 (꿀팁 거래 게시판)
+export const fetchHoneyTipPostsByCategory = async (categoryId) => {
+  try {
+    const response = await api.get(`/api/tips/${categoryId}`);
+    console.log("Response data for category:", categoryId, response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Failed to fetch posts by category:", error);
+    throw error;
+  }
+};
+
+// 게시물 작성 함수 (꿀팁 거래 게시판)
+export const createHoneyTipPost = async (title, content, category) => {
+  try {
+    const userId = await AsyncStorage.getItem("userId");
+    if (!userId) throw new Error("로그인 정보가 없습니다.");
+
+    const postData = {
+      poster: userId,
+      title,
+      content,
+      sub_category_name: category,
+    };
+
+    const response = await api.post("/api/post/newpost", postData);
+    console.log("HoneyTip Post created:", response.data);
+
+    return response.data;
+  } catch (error) {
+    console.error("HoneyTip Post creation failed:", error);
+    throw error;
+  }
+};
+
 // 특정 카테고리의 게시물들을 가져오는 함수
 export const fetchPostsByCategory = async (category) => {
   let url = "/api/info";
@@ -170,6 +219,22 @@ export const fetchPostsByCategory = async (category) => {
     return updatedPosts; // 카테고리와 이미지 URL이 포함된 게시물 데이터 반환
   } catch (error) {
     console.error("게시물 불러오기 실패:", error);
+    throw error;
+  }
+};
+
+// 커뮤니티 게시물 불러오는 API 함수
+export const fetchCommunityPosts = async () => {
+  try {
+    const token = await AsyncStorage.getItem("userToken");
+    const response = await axios.get(`${API_BASE_URL}/api/communities`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data; // 서버로부터 받아온 커뮤니티 게시물 데이터 반환
+  } catch (error) {
+    console.error("커뮤니티 게시물 불러오기 실패:", error);
     throw error;
   }
 };

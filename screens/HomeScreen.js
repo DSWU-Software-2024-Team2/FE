@@ -76,7 +76,7 @@ export default function HomeScreen() {
         <TouchableOpacity
           style={[styles.categoryLayout3]}
           onPress={() => {
-            //navigation.navigate("커뮤니티");
+            navigation.navigate("Community");
           }}
         >
           <Image

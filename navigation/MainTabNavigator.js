@@ -29,6 +29,7 @@ function HoneyTipStack() {
         component={WritePostScreen}
         options={{ title: "게시물 작성" }}
       />
+      <Stack.Screen name="Community" component={CommunityScreen} />
     </Stack.Navigator>
   );
 }

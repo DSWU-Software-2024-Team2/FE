@@ -1,3 +1,4 @@
+//은영
 import React, { useState, useEffect } from "react";
 import {
   View,
@@ -9,7 +10,7 @@ import {
 } from "react-native";
 import { fetchCommunityPosts } from "../services/api"; // API 함수 추가
 
-export default function CommunityScreen() {
+export default function CommunityScreen({ navigation }) {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -46,7 +47,7 @@ export default function CommunityScreen() {
   return (
     <View style={styles.container}>
       <Text style={styles.headerTitle}>커뮤니티</Text>
-      {loading ? ( // 로딩 중일 때 로딩 스피너 표시
+      {loading ? (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#0000ff" />
           <Text>로딩 중...</Text>
@@ -58,6 +59,12 @@ export default function CommunityScreen() {
           keyExtractor={(item) => item.post_id.toString()}
         />
       )}
+      <TouchableOpacity
+        style={styles.writePostButton}
+        onPress={() => navigation.navigate("WriteCommunityPost")} // navigation prop 사용
+      >
+        <Text style={styles.writePostButtonText}>새 글 작성</Text>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -128,5 +135,17 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+  },
+  writePostButton: {
+    backgroundColor: "#FFA500",
+    padding: 10,
+    borderRadius: 10,
+    alignItems: "center",
+    marginBottom: 20,
+  },
+
+  writePostButtonText: {
+    color: "#FFFFFF",
+    fontWeight: "bold",
   },
 });

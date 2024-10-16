@@ -14,6 +14,7 @@ import InfoScreen from "../screens/InfoScreen";
 import PayPostScreen from "../screens/PayPostScreen";
 import MileageScreen from "../screens/MileageScreen";
 import CommunityScreen from "../screens/CommunityScreen";
+import WriteCommunityPostScreen from "../screens/WriteCommunityPostScreen";
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -26,6 +27,10 @@ function HoneyTipStack() {
       <Stack.Screen name="HoneyTip" component={HoneyTipScreen} />
       <Stack.Screen name="HoneyTipPost" component={PayPostScreen} />
       <Stack.Screen name="Community" component={CommunityScreen} />
+      <Stack.Screen
+        name="WriteCommunityPost"
+        component={WriteCommunityPostScreen}
+      />
       <Stack.Screen
         name="WritePost"
         component={WritePostScreen}
@@ -58,6 +63,10 @@ function CommunityStack() {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="CommunityMain" component={CommunityScreen} />
+      <Stack.Screen
+        name="WriteCommunityPost"
+        component={WriteCommunityPostScreen}
+      />
     </Stack.Navigator>
   );
 }
